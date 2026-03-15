@@ -15,7 +15,7 @@ const T = {
   en: {
     free: "Free — no signup required", heroTitle1: "They left a note.", heroTitle2: "Write back in seconds.",
     heroSub: "Paste any review from Google, Yelp, Facebook, or TripAdvisor. Get a professional, human-sounding response instantly. Copy, paste, done.",
-    heroCta: "Generate a Response — Free", heroNote: "3 free responses per day. No signup.",
+    heroCta: "Generate a Response — Free", heroNote: "2 free responses per day. No signup.",
     stat1: "read owner responses", stat2: "more revenue with replies", stat3: "platforms supported", stat4: "languages available",
     seeAction: "See it in action", clickTry: "Click any review to try it", genResponse: "Generate response →",
     toolTag: "Review Response Generator", toolTitle: "Paste. Generate. Copy. Done.",

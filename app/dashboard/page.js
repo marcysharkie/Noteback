@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 
-const FREE_LIMIT = 3;
+const FREE_LIMIT = 2;
 const BIZ_TYPES = ["Restaurant","Plumber","HVAC","Electrician","Dentist","Auto Repair","Salon / Barbershop","Med Spa","Cleaning Service","Roofing","Landscaping","Veterinarian","Real Estate","Law Office","Retail","Other"];
 const TONES_KEYS = ["warm","professional","casual","apologetic"];
 const TONE_LABELS = { warm: "Warm & Friendly", professional: "Professional", casual: "Casual", apologetic: "Apologetic" };
@@ -68,12 +68,9 @@ export default function Dashboard() {
         setResponse(data.response);
         const nc = used + 1; setUsed(nc);
         const nt = totalGenerated + 1; setTotalGenerated(nt);
-        const entry = { review: review.slice(0, 200), stars, platform, bizType, response: data.response, language: LANG_NAMES[respLang], time: new Date().toLocaleString(), id: Date.now() };
-        const nh = [entry, ...history].slice(0, 50); setHistory(nh);
         try {
           const td = new Date().toISOString().split("T")[0];
           localStorage.setItem("nb_usage", JSON.stringify({ date: td, count: nc }));
-          localStorage.setItem("nb_history", JSON.stringify(nh));
           localStorage.setItem("nb_total", String(nt));
         } catch {}
       }
@@ -98,7 +95,7 @@ export default function Dashboard() {
             </a>
             {/* Tabs */}
             <div style={{ display: "flex", gap: 2, marginLeft: 12 }}>
-              {[{ k: "generate", l: "Generate" }, { k: "history", l: `History (${history.length})` }].map(t => (
+              {[{ k: "generate", l: "Write Reply" }, { k: "history", l: `History 🔒` }].map(t => (
                 <button key={t.k} onClick={() => setTab(t.k)} style={{ padding: "6px 14px", borderRadius: 7, background: tab === t.k ? "color-mix(in srgb, var(--terra) 10%, transparent)" : "transparent", border: "none", fontSize: 12, fontWeight: tab === t.k ? 600 : 400, color: tab === t.k ? "var(--terra)" : "var(--dim)", cursor: "pointer", fontFamily: "'Instrument Sans', sans-serif" }}>{t.l}</button>
               ))}
             </div>
@@ -117,8 +114,8 @@ export default function Dashboard() {
         <div style={{ display: "flex", gap: 12, marginBottom: 24, flexWrap: "wrap" }}>
           {[
             { label: "Today", value: `${used}/${FREE_LIMIT}`, sub: "used", color: canGen ? "var(--sage)" : "var(--terra)" },
-            { label: "Total generated", value: totalGenerated, sub: "all time", color: "var(--terra)" },
-            { label: "History", value: history.length, sub: "saved", color: "var(--dim)" },
+            { label: "Total replies", value: totalGenerated, sub: "all time", color: "var(--terra)" },
+            { label: "History", value: "Pro", sub: "upgrade to unlock", color: "var(--dim)" },
           ].map((s, i) => (
             <div key={i} style={{ flex: "1 1 100px", padding: "14px 16px", background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12 }}>
               <div style={{ fontSize: 10, color: "var(--light)", letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 }}>{s.label}</div>
@@ -162,7 +159,7 @@ export default function Dashboard() {
               </div>
               <div style={{ flex: "1 1 180px" }}>
                 <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 5 }}>Tone</label>
-                <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>{TONES_KEYS.map(k => <Pill key={k} active={tone === k} onClick={() => setTone(k)}>{TONE_LABELS[k]}</Pill>)}</div>
+                <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>{TONES_KEYS.map(k => { const locked = (k === "casual" || k === "apologetic"); return <Pill key={k} active={tone === k} onClick={() => locked ? setShowPricing(true) : setTone(k)}>{TONE_LABELS[k]}{locked ? " 🔒" : ""}</Pill>; })}</div>
               </div>
             </div>
 
@@ -198,38 +195,22 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* HISTORY TAB */}
+        {/* HISTORY TAB — PRO ONLY */}
         {tab === "history" && (
-          <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-              <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 20, fontWeight: 700, color: "var(--text)" }}>Reply History</h2>
-              {history.length > 0 && <button onClick={clearHist} style={{ padding: "5px 12px", background: "none", border: "1px solid var(--border)", borderRadius: 8, fontSize: 11, color: "var(--dim)", cursor: "pointer", fontFamily: "'Instrument Sans', sans-serif" }}>Clear All</button>}
+          <div style={{ textAlign: "center", padding: "60px 20px", background: "var(--card)", borderRadius: 16, border: "1px solid var(--border)" }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
+            <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 24, fontWeight: 900, color: "var(--text)", marginBottom: 8 }}>Reply History is a Pro feature</h2>
+            <p style={{ fontSize: 14, color: "var(--dim)", maxWidth: 380, margin: "0 auto 24px", lineHeight: 1.6 }}>Pro members get every reply saved automatically. Review, copy, and reuse your best responses anytime.</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, maxWidth: 280, margin: "0 auto" }}>
+              <a href={STRIPE_MONTHLY} target="_blank" rel="noopener" style={{ display: "block", padding: "12px 24px", borderRadius: 10, background: "var(--terra)", fontSize: 14, fontWeight: 700, color: "#fff", textDecoration: "none", textAlign: "center" }}>Go Pro — $19/month</a>
+              <p style={{ fontSize: 11, color: "var(--light)" }}>Cancel anytime. Secure checkout via Stripe.</p>
             </div>
-            {history.length === 0 ? (
-              <div style={{ textAlign: "center", padding: 48, background: "var(--card)", borderRadius: 14, border: "1px solid var(--border)" }}>
-                <div style={{ fontSize: 32, marginBottom: 10 }}>📝</div>
-                <div style={{ color: "var(--dim)", fontSize: 14 }}>No replies yet.</div>
-                <button onClick={() => setTab("generate")} style={{ marginTop: 12, padding: "8px 20px", background: "var(--terra)", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#fff", cursor: "pointer", fontFamily: "'Instrument Sans', sans-serif" }}>Write Your First Reply</button>
-              </div>
-            ) : history.map(h => (
-              <div key={h.id} style={{ background: "var(--card)", borderRadius: 12, border: "1px solid var(--border)", padding: "14px 16px", marginBottom: 8 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6, flexWrap: "wrap", gap: 4 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <div style={{ display: "flex", gap: 2 }}>{[1,2,3,4,5].map(s => <span key={s} style={{ fontSize: 11, color: s <= h.stars ? "var(--star)" : "var(--starOff)" }}>★</span>)}</div>
-                    <span style={{ fontSize: 10, padding: "2px 6px", background: "var(--sand)", borderRadius: 4, color: "var(--dim)", fontWeight: 600 }}>{h.platform}</span>
-                    {h.bizType && <span style={{ fontSize: 10, padding: "2px 6px", background: "var(--sand)", borderRadius: 4, color: "var(--dim)" }}>{h.bizType}</span>}
-                    {h.language !== "English" && <span style={{ fontSize: 10, padding: "2px 6px", background: "color-mix(in srgb, var(--sage) 15%, transparent)", borderRadius: 4, color: "var(--sage)", fontWeight: 600 }}>{h.language}</span>}
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ fontSize: 10, color: "var(--light)" }}>{h.time}</span>
-                    <button onClick={() => deleteHist(h.id)} style={{ background: "none", border: "none", fontSize: 14, color: "var(--light)", cursor: "pointer", padding: 0 }}>×</button>
-                  </div>
-                </div>
-                <p style={{ fontSize: 12, color: "var(--dim)", lineHeight: 1.5, fontStyle: "italic", marginBottom: 8, padding: "8px 10px", background: "var(--inputBg)", borderRadius: 8 }}>"{h.review}{h.review.length >= 200 ? "..." : ""}"</p>
-                <p style={{ fontSize: 14, color: "var(--text)", lineHeight: 1.65, marginBottom: 8 }}>{h.response}</p>
-                <button onClick={() => navigator.clipboard.writeText(h.response)} style={{ padding: "4px 12px", background: "var(--card)", border: "1px solid var(--border)", borderRadius: 6, fontSize: 11, color: "var(--dim)", cursor: "pointer", fontFamily: "'Instrument Sans', sans-serif" }}>Copy</button>
-              </div>
-            ))}
+            <div style={{ marginTop: 32, padding: "16px 20px", background: "var(--inputBg)", borderRadius: 12, maxWidth: 400, margin: "32px auto 0" }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", marginBottom: 10 }}>What you get with Pro:</div>
+              {["Unlimited replies per day", "Full reply history — saved automatically", "All 8+ platforms & 8 languages", "Priority AI speed", "Email support"].map(f => (
+                <div key={f} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--text)", marginBottom: 6 }}><span style={{ color: "var(--sage)", fontWeight: 700 }}>✓</span>{f}</div>
+              ))}
+            </div>
           </div>
         )}
       </div>

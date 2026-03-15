@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 
-const FREE_LIMIT = 3;
+const FREE_LIMIT = 2;
 const BIZ_TYPES = ["Restaurant","Plumber","HVAC","Electrician","Dentist","Auto Repair","Salon / Barbershop","Med Spa","Cleaning Service","Roofing","Landscaping","Veterinarian","Real Estate","Law Office","Retail","Other"];
 const TONES_KEYS = ["warm","professional","casual","apologetic"];
 const PLATFORMS = ["Google","Yelp","Facebook","TripAdvisor","Trustpilot","BBB","Nextdoor","Other"];
@@ -15,7 +15,7 @@ const T = {
   en: {
     free: "Free — no signup required", heroTitle1: "They left a note.", heroTitle2: "Write back in seconds.",
     heroSub: "Paste any customer review from Google, Yelp, Facebook, or TripAdvisor. Get a professional reply to post as the business owner. Copy, paste, done.",
-    heroCta: "Write a Reply — Free", heroNote: "3 free replies per day. No signup.",
+    heroCta: "Write a Reply — Free", heroNote: "2 free replies per day. No signup.",
     stat1: "read owner responses", stat2: "more revenue with replies", stat3: "platforms supported", stat4: "languages available",
     seeAction: "See it in action", clickTry: "Click any review to try it", genResponse: "Write a reply →",
     toolTag: "Review Reply Tool for Business Owners", toolTitle: "Paste a customer review. Get your reply.",
@@ -34,14 +34,14 @@ const T = {
     step3t: "Post it", step3d: "One click to copy. Paste it as your owner response on the platform. Your customer gets a thoughtful reply. Done.",
     priceTag: "Pricing", priceTitle: "Free forever. Pro when you're ready.",
     freePlan: "Free", freePlanPrice: "$0", forever: "Forever",
-    feat1: "3 replies per day", feat2: "All 8+ platforms", feat3: "All languages", feat4: "Copy with one click",
+    feat1: "2 replies per day", feat2: "2 tone styles", feat3: "All platforms", feat4: "Copy with one click",
     proMonthly: "Pro Monthly", cancelAnytime: "Cancel anytime",
-    profeat1: "Unlimited replies", profeat2: "All platforms & languages", profeat3: "Reply history", profeat4: "Priority AI speed", profeat5: "Email support",
+    profeat1: "Unlimited replies", profeat2: "All 4 tones & 8 languages", profeat3: "Reply history", profeat4: "Priority AI speed", profeat5: "Email support",
     startTrial: "Start Free Trial",
     proYearly: "Pro Yearly", save35: "Save 35%",
     yfeat1: "Everything in Pro", yfeat2: "2 months free", yfeat3: "Priority support", yfeat4: "Early access to features",
     faqTitle: "Questions?",
-    faq1q: "Is NoteBack really free?", faq1a: "Yes — 3 replies per day, forever. No credit card, no signup. Pro unlocks unlimited for $19/mo.",
+    faq1q: "Is NoteBack really free?", faq1a: "Yes — 2 replies per day, forever. No credit card, no signup. Pro unlocks unlimited for $19/mo.",
     faq2q: "How does it work?", faq2a: "Paste a customer review you received on Google, Yelp, Facebook, or any platform. Select the star rating and your business type. NoteBack writes a professional owner reply you can post.",
     faq3q: "Will the replies sound robotic?", faq3a: "No. NoteBack writes like a real business owner — warm, specific, and genuine. Every reply references details from the actual customer review.",
     faq4q: "Which platforms does it support?", faq4a: "Google, Yelp, Facebook, TripAdvisor, Trustpilot, BBB, Nextdoor, and any other review platform where you need to respond as the business owner.",
@@ -59,7 +59,7 @@ const T = {
   es: {
     free: "Gratis — sin registro", heroTitle1: "Dejaron una nota.", heroTitle2: "Responde en segundos.",
     heroSub: "Pega cualquier reseña de Google, Yelp, Facebook o TripAdvisor. Obtén una respuesta profesional al instante. Copia, pega, listo.",
-    heroCta: "Generar Respuesta — Gratis", heroNote: "3 respuestas gratis por día. Sin registro.",
+    heroCta: "Generar Respuesta — Gratis", heroNote: "2 respuestas gratis por día. Sin registro.",
     stat1: "leen las respuestas", stat2: "más ingresos con respuestas", stat3: "plataformas", stat4: "idiomas disponibles",
     seeAction: "Míralo en acción", clickTry: "Haz clic en cualquier reseña", genResponse: "Generar respuesta →",
     toolTag: "Generador de Respuestas", toolTitle: "Pega. Genera. Copia. Listo.",
@@ -78,13 +78,13 @@ const T = {
     step3t: "Copia y publica", step3d: "Un clic para copiar. Pégala como respuesta en la plataforma. Listo.",
     priceTag: "Precios", priceTitle: "Gratis para siempre. Pro cuando quieras.",
     freePlan: "Gratis", freePlanPrice: "$0", forever: "Para siempre",
-    feat1: "3 respuestas por día", feat2: "Todas las plataformas", feat3: "Todos los idiomas", feat4: "Copiar con un clic",
+    feat1: "2 respuestas por día", feat2: "Todas las plataformas", feat3: "Todos los idiomas", feat4: "Copiar con un clic",
     proMonthly: "Pro Mensual", cancelAnytime: "Cancela cuando quieras",
     profeat1: "Respuestas ilimitadas", profeat2: "Todas las plataformas e idiomas", profeat3: "Historial", profeat4: "IA prioritaria", profeat5: "Soporte por email",
     startTrial: "Prueba Gratis", proYearly: "Pro Anual", save35: "Ahorra 35%",
     yfeat1: "Todo en Pro", yfeat2: "2 meses gratis", yfeat3: "Soporte prioritario", yfeat4: "Acceso anticipado",
     faqTitle: "¿Preguntas?",
-    faq1q: "¿Es realmente gratis?", faq1a: "Sí — 3 respuestas por día, para siempre. Sin tarjeta, sin registro. Pro desbloquea ilimitadas por $19/mes.",
+    faq1q: "¿Es realmente gratis?", faq1a: "Sí — 2 respuestas por día, para siempre. Sin tarjeta, sin registro. Pro desbloquea ilimitadas por $19/mes.",
     faq2q: "¿Cómo funciona?", faq2a: "Pega cualquier reseña, selecciona la calificación y tipo de negocio. Nuestra IA genera una respuesta profesional en segundos.",
     faq3q: "¿Sonarán robóticas?", faq3a: "No. NoteBack escribe como un dueño real — cálido, específico y genuino.",
     faq4q: "¿Qué plataformas soporta?", faq4a: "Google, Yelp, Facebook, TripAdvisor, Trustpilot, BBB, Nextdoor y más.",
@@ -102,7 +102,7 @@ const T = {
   fr: {
     free: "Gratuit — sans inscription", heroTitle1: "Ils ont laissé un mot.", heroTitle2: "Répondez en secondes.",
     heroSub: "Collez un avis de Google, Yelp, Facebook ou TripAdvisor. Obtenez une réponse professionnelle instantanément.",
-    heroCta: "Générer une Réponse — Gratuit", heroNote: "3 réponses gratuites par jour.",
+    heroCta: "Générer une Réponse — Gratuit", heroNote: "2 réponses gratuites par jour.",
     stat1: "lisent les réponses", stat2: "plus de revenus", stat3: "plateformes", stat4: "langues disponibles",
     seeAction: "Voyez en action", clickTry: "Cliquez sur un avis", genResponse: "Générer →",
     toolTag: "Générateur de Réponses", toolTitle: "Collez. Générez. Copiez. Terminé.",
@@ -119,13 +119,13 @@ const T = {
     step1t: "Collez", step1d: "Copiez un avis de n'importe quelle plateforme.", step2t: "Générez", step2d: "Notre IA rédige une réponse professionnelle adaptée.", step3t: "Copiez", step3d: "Un clic pour copier. Collez comme réponse. Terminé.",
     priceTag: "Tarifs", priceTitle: "Gratuit pour toujours. Pro quand vous êtes prêt.",
     freePlan: "Gratuit", freePlanPrice: "$0", forever: "Pour toujours",
-    feat1: "3 réponses/jour", feat2: "Toutes les plateformes", feat3: "Toutes les langues", feat4: "Copier en un clic",
+    feat1: "2 réponses/jour", feat2: "Toutes les plateformes", feat3: "Toutes les langues", feat4: "Copier en un clic",
     proMonthly: "Pro Mensuel", cancelAnytime: "Annulez quand vous voulez",
     profeat1: "Réponses illimitées", profeat2: "Toutes plateformes et langues", profeat3: "Historique", profeat4: "IA prioritaire", profeat5: "Support email",
     startTrial: "Essai Gratuit", proYearly: "Pro Annuel", save35: "Économisez 35%",
     yfeat1: "Tout dans Pro", yfeat2: "2 mois gratuits", yfeat3: "Support prioritaire", yfeat4: "Accès anticipé",
     faqTitle: "Questions ?",
-    faq1q: "C'est vraiment gratuit ?", faq1a: "Oui — 3 réponses/jour, pour toujours. Pro débloque l'illimité à $19/mois.",
+    faq1q: "C'est vraiment gratuit ?", faq1a: "Oui — 2 réponses/jour, pour toujours. Pro débloque l'illimité à $19/mois.",
     faq2q: "Comment ça marche ?", faq2a: "Collez un avis, sélectionnez la note et votre type d'entreprise. Notre IA génère une réponse en secondes.",
     faq3q: "Les réponses sont-elles robotiques ?", faq3a: "Non. NoteBack écrit comme un vrai propriétaire — chaleureux et authentique.",
     faq4q: "Quelles plateformes ?", faq4a: "Google, Yelp, Facebook, TripAdvisor, Trustpilot, BBB, Nextdoor et plus.",
@@ -146,7 +146,7 @@ const T = {
 
 // Fill remaining languages with key translations (hero, nav, CTA)
 const PARTIAL = {
-  pt: { heroTitle1: "Deixaram uma nota.", heroTitle2: "Responda em segundos.", heroCta: "Gerar Resposta — Grátis", heroNote: "3 respostas grátis por dia.", goPro: "Assinar Pro", tryFree: "Testar Grátis", manageSub: "Gerenciar Assinatura", ctaTitle: "Pare de ignorar suas avaliações.", ctaBtn: "Teste Grátis", footerTag: "Deixaram uma nota. Nós respondemos." },
+  pt: { heroTitle1: "Deixaram uma nota.", heroTitle2: "Responda em segundos.", heroCta: "Gerar Resposta — Grátis", heroNote: "2 respostas grátis por dia.", goPro: "Assinar Pro", tryFree: "Testar Grátis", manageSub: "Gerenciar Assinatura", ctaTitle: "Pare de ignorar suas avaliações.", ctaBtn: "Teste Grátis", footerTag: "Deixaram uma nota. Nós respondemos." },
   de: { heroTitle1: "Sie hinterließen eine Notiz.", heroTitle2: "Antworten Sie in Sekunden.", heroCta: "Antwort Generieren — Kostenlos", heroNote: "3 kostenlose Antworten pro Tag.", goPro: "Pro Werden", tryFree: "Kostenlos Testen", manageSub: "Abo Verwalten", ctaTitle: "Ignorieren Sie Ihre Bewertungen nicht.", ctaBtn: "Kostenlos Testen", footerTag: "Sie hinterließen eine Notiz. Wir antworten." },
   zh: { heroTitle1: "他们留下了评价。", heroTitle2: "秒速回复。", heroCta: "免费生成回复", heroNote: "每天3次免费回复。", goPro: "升级Pro", tryFree: "免费试用", manageSub: "管理订阅", ctaTitle: "别再忽视你的评价了。", ctaBtn: "免费试用", footerTag: "他们留下了评价。我们来回复。" },
   ja: { heroTitle1: "レビューが届きました。", heroTitle2: "数秒で返信。", heroCta: "無料で返信を生成", heroNote: "1日3回無料。", goPro: "Proへ", tryFree: "無料で試す", manageSub: "サブスク管理", ctaTitle: "レビューを放置しないで。", ctaBtn: "無料で試す", footerTag: "レビューが届いた。私たちが返信します。" },

@@ -28,7 +28,7 @@ export async function POST(req) {
     const isPro = body.isPro === true;
     if (!isPro) {
       const key = getRateLimitKey(req);
-      const { allowed } = checkRateLimit(key, 3);
+      const { allowed } = checkRateLimit(key, 2);
       if (!allowed) return Response.json({ error: "limit", remaining: 0 }, { status: 429 });
     }
 

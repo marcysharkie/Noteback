@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 
-const FREE_LIMIT = 3;
+const FREE_LIMIT = 2;
 const BIZ_TYPES = ["Restaurant","Plumber","HVAC","Electrician","Dentist","Auto Repair","Salon / Barbershop","Med Spa","Cleaning Service","Roofing","Landscaping","Veterinarian","Real Estate","Law Office","Retail","Other"];
 const TONES_KEYS = ["warm","professional","casual","apologetic"];
 const TONE_LABELS = { warm: "Warm & Friendly", professional: "Professional", casual: "Casual", apologetic: "Apologetic" };

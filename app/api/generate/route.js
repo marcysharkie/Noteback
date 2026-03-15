@@ -7,7 +7,7 @@ function getRateLimitKey(req) {
   return `${ip}:${date}`;
 }
 
-function checkRateLimit(key, limit = 3) {
+function checkRateLimit(key, limit = 2) {
   const now = Date.now();
   for (const [k, v] of rateLimitMap) {
     if (now - v.timestamp > 86400000) rateLimitMap.delete(k);

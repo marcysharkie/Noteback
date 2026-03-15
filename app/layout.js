@@ -1,18 +1,18 @@
 export const metadata = {
-  title: "NoteBack — AI Review Response Generator | Google, Yelp, Facebook & More",
-  description: "Paste any review from Google, Yelp, Facebook, or TripAdvisor. Get a professional, human-sounding response in seconds. Free — no signup required.",
+  title: "NoteBack — Reply to Customer Reviews with AI | For Business Owners",
+  description: "NoteBack helps business owners write professional replies to their customer reviews on Google, Yelp, and Facebook. Respond to your existing reviews in seconds.",
   icons: { icon: "/favicon.ico", apple: "/favicon.svg", shortcut: "/favicon.ico" },
   openGraph: {
-    title: "NoteBack — They Left a Note. Write Back in Seconds.",
-    description: "AI-powered review response generator for local businesses. Works with Google, Yelp, Facebook, TripAdvisor & more.",
+    title: "NoteBack — Help Business Owners Reply to Customer Reviews",
+    description: "Write professional responses to your customer reviews on Google, Yelp, Facebook & more. A reply tool for business owners — not a review generator.",
     url: "https://noteback.co",
     siteName: "NoteBack",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "NoteBack — AI Review Response Generator",
-    description: "Paste any review. Get a perfect response in seconds. Free.",
+    title: "NoteBack — Reply to Your Customer Reviews with AI",
+    description: "Helps business owners respond to real customer reviews professionally. Not a review generator.",
   },
 };
 

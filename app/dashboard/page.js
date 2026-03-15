@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 
-const FREE_LIMIT = 2;
+const FREE_LIMIT = 3;
 const BIZ_TYPES = ["Restaurant","Plumber","HVAC","Electrician","Dentist","Auto Repair","Salon / Barbershop","Med Spa","Cleaning Service","Roofing","Landscaping","Veterinarian","Real Estate","Law Office","Retail","Other"];
 const TONES_KEYS = ["warm","professional","casual","apologetic"];
 const TONE_LABELS = { warm: "Warm & Friendly", professional: "Professional", casual: "Casual", apologetic: "Apologetic" };
@@ -145,8 +145,8 @@ export default function Dashboard() {
 
             {/* Review */}
             <div style={{ marginBottom: 14 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 5 }}>Paste the review</label>
-              <textarea value={review} onChange={e => setReview(e.target.value)} placeholder={`Paste the customer's ${platform} review here...`} rows={5} style={{ ...inp, fontSize: 15, lineHeight: 1.6, padding: "14px", borderRadius: 12, resize: "vertical" }} />
+              <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 5 }}>Paste the customer review</label>
+              <textarea value={review} onChange={e => setReview(e.target.value)} placeholder={`Paste a customer ${platform} review here...`} rows={5} style={{ ...inp, fontSize: 15, lineHeight: 1.6, padding: "14px", borderRadius: 12, resize: "vertical" }} />
               {review.length > 0 && <div style={{ fontSize: 11, color: "var(--light)", marginTop: 4, textAlign: "right" }}>{review.length} characters</div>}
             </div>
 
@@ -157,7 +157,7 @@ export default function Dashboard() {
                 <select value={bizType} onChange={e => setBizType(e.target.value)} style={{ ...inp, cursor: "pointer" }}><option value="">Select...</option>{BIZ_TYPES.map(b => <option key={b}>{b}</option>)}</select>
               </div>
               <div style={{ flex: "1 1 100px" }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 5 }}>Response language</label>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 5 }}>Reply language</label>
                 <select value={respLang} onChange={e => setRespLang(e.target.value)} style={{ ...inp, cursor: "pointer" }}>{LANG_CODES.map(c => <option key={c} value={c}>{LANG_FLAGS[c]} {LANG_NAMES[c]}</option>)}</select>
               </div>
               <div style={{ flex: "1 1 180px" }}>
@@ -174,7 +174,7 @@ export default function Dashboard() {
 
             {/* Generate */}
             <button onClick={generate} disabled={!review.trim() || stars === 0 || loading} style={{ width: "100%", padding: "14px", borderRadius: 12, background: (!review.trim() || stars === 0) ? "var(--sandDk)" : loading ? "var(--sandDk)" : "var(--terra)", border: "none", fontSize: 15, fontWeight: 700, cursor: (!review.trim() || stars === 0 || loading) ? "not-allowed" : "pointer", color: (!review.trim() || stars === 0) ? "var(--light)" : "#fff", fontFamily: "'Instrument Sans', sans-serif", transition: "all 0.2s" }}>
-              {loading ? <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}><span style={{ width: 15, height: 15, border: "2px solid #fff4", borderTopColor: "#fff", borderRadius: "50%", animation: "spin .6s linear infinite", display: "inline-block" }} />Writing your response...</span> : !canGen ? "Daily limit reached — Go Pro for unlimited" : `Generate Response${used > 0 ? ` (${FREE_LIMIT - used} left)` : ""}`}
+              {loading ? <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}><span style={{ width: 15, height: 15, border: "2px solid #fff4", borderTopColor: "#fff", borderRadius: "50%", animation: "spin .6s linear infinite", display: "inline-block" }} />Writing your reply...</span> : !canGen ? "Daily limit reached — Go Pro for unlimited replies" : `Write My Reply${used > 0 ? ` (${FREE_LIMIT - used} left)` : ""}`}
             </button>
 
             {/* Response */}
@@ -183,14 +183,14 @@ export default function Dashboard() {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10, flexWrap: "wrap", gap: 5 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
                     <div style={{ width: 18, height: 18, borderRadius: 5, background: "var(--sage)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9, fontWeight: 700, color: "#fff" }}>✓</div>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: "var(--sage)" }}>Ready to paste into {platform}</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "var(--sage)" }}>Your reply — ready to post on {platform}</span>
                     {respLang !== "en" && <span style={{ fontSize: 10, padding: "1px 6px", background: "color-mix(in srgb, var(--sage) 15%, transparent)", borderRadius: 4, color: "var(--sage)" }}>{LANG_NAMES[respLang]}</span>}
                   </div>
-                  <button onClick={() => { navigator.clipboard.writeText(response); setCopied(true); setTimeout(() => setCopied(false), 2000); }} style={{ padding: "6px 16px", borderRadius: 8, background: copied ? "color-mix(in srgb, var(--sage) 10%, var(--card))" : "var(--card)", border: `1px solid ${copied ? "color-mix(in srgb, var(--sage) 30%, transparent)" : "var(--border)"}`, fontSize: 12, fontWeight: 600, color: copied ? "var(--sage)" : "var(--dim)", cursor: "pointer", fontFamily: "'Instrument Sans', sans-serif" }}>{copied ? "Copied!" : "Copy Response"}</button>
+                  <button onClick={() => { navigator.clipboard.writeText(response); setCopied(true); setTimeout(() => setCopied(false), 2000); }} style={{ padding: "6px 16px", borderRadius: 8, background: copied ? "color-mix(in srgb, var(--sage) 10%, var(--card))" : "var(--card)", border: `1px solid ${copied ? "color-mix(in srgb, var(--sage) 30%, transparent)" : "var(--border)"}`, fontSize: 12, fontWeight: 600, color: copied ? "var(--sage)" : "var(--dim)", cursor: "pointer", fontFamily: "'Instrument Sans', sans-serif" }}>{copied ? "Copied!" : "Copy Reply"}</button>
                 </div>
                 <p style={{ fontSize: 15, lineHeight: 1.75, color: "var(--text)", margin: 0 }}>{response}</p>
                 <div style={{ marginTop: 10, display: "flex", gap: 6 }}>
-                  <button onClick={generate} style={{ padding: "5px 12px", background: "var(--card)", border: "1px solid var(--border)", borderRadius: 7, fontSize: 11, color: "var(--dim)", cursor: "pointer", fontFamily: "'Instrument Sans', sans-serif" }}>Regenerate</button>
+                  <button onClick={generate} style={{ padding: "5px 12px", background: "var(--card)", border: "1px solid var(--border)", borderRadius: 7, fontSize: 11, color: "var(--dim)", cursor: "pointer", fontFamily: "'Instrument Sans', sans-serif" }}>Try another version</button>
                   <span style={{ fontSize: 11, color: "var(--light)", display: "flex", alignItems: "center" }}>{response.split(/\s+/).length} words</span>
                 </div>
               </div>
@@ -202,14 +202,14 @@ export default function Dashboard() {
         {tab === "history" && (
           <div>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-              <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 20, fontWeight: 700, color: "var(--text)" }}>Response History</h2>
+              <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 20, fontWeight: 700, color: "var(--text)" }}>Reply History</h2>
               {history.length > 0 && <button onClick={clearHist} style={{ padding: "5px 12px", background: "none", border: "1px solid var(--border)", borderRadius: 8, fontSize: 11, color: "var(--dim)", cursor: "pointer", fontFamily: "'Instrument Sans', sans-serif" }}>Clear All</button>}
             </div>
             {history.length === 0 ? (
               <div style={{ textAlign: "center", padding: 48, background: "var(--card)", borderRadius: 14, border: "1px solid var(--border)" }}>
                 <div style={{ fontSize: 32, marginBottom: 10 }}>📝</div>
-                <div style={{ color: "var(--dim)", fontSize: 14 }}>No responses yet.</div>
-                <button onClick={() => setTab("generate")} style={{ marginTop: 12, padding: "8px 20px", background: "var(--terra)", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#fff", cursor: "pointer", fontFamily: "'Instrument Sans', sans-serif" }}>Generate Your First</button>
+                <div style={{ color: "var(--dim)", fontSize: 14 }}>No replies yet.</div>
+                <button onClick={() => setTab("generate")} style={{ marginTop: 12, padding: "8px 20px", background: "var(--terra)", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#fff", cursor: "pointer", fontFamily: "'Instrument Sans', sans-serif" }}>Write Your First Reply</button>
               </div>
             ) : history.map(h => (
               <div key={h.id} style={{ background: "var(--card)", borderRadius: 12, border: "1px solid var(--border)", padding: "14px 16px", marginBottom: 8 }}>
@@ -254,9 +254,9 @@ export default function Dashboard() {
           <div onClick={e => e.stopPropagation()} style={{ background: "var(--card)", borderRadius: 18, padding: 28, maxWidth: 380, width: "100%", boxShadow: "0 24px 64px rgba(44,36,24,0.25)" }}>
             <div style={{ textAlign: "center", marginBottom: 16 }}>
               <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 24, fontWeight: 900, color: "var(--text)" }}>Go Pro</h2>
-              <p style={{ fontSize: 12, color: "var(--dim)", marginTop: 4 }}>Unlimited responses. All platforms. All languages.</p>
+              <p style={{ fontSize: 12, color: "var(--dim)", marginTop: 4 }}>Unlimited replies to your customer reviews.</p>
             </div>
-            <a href={STRIPE_MONTHLY} target="_blank" rel="noopener" style={{ display: "block", width: "100%", padding: 14, borderRadius: 12, background: "var(--terra)", fontSize: 15, fontWeight: 700, color: "#fff", textAlign: "center", textDecoration: "none", boxSizing: "border-box", marginBottom: 8 }}>Start Pro — $19/month</a>
+            <a href={STRIPE_MONTHLY} target="_blank" rel="noopener" style={{ display: "block", width: "100%", padding: 14, borderRadius: 12, background: "var(--terra)", fontSize: 15, fontWeight: 700, color: "#fff", textAlign: "center", textDecoration: "none", boxSizing: "border-box", marginBottom: 8 }}>Go Pro — $19/month</a>
             <p style={{ textAlign: "center", fontSize: 10, color: "var(--light)" }}>7-day free trial. Cancel anytime via Stripe.</p>
             <button onClick={() => setShowPricing(false)} style={{ display: "block", margin: "8px auto 0", background: "none", border: "none", fontSize: 12, color: "var(--dim)", cursor: "pointer", textDecoration: "underline" }}>Maybe later</button>
           </div>

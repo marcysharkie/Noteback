@@ -41,7 +41,7 @@ const T = {
     proYearly: "Pro Yearly", save35: "Save 35%",
     yfeat1: "Everything in Pro", yfeat2: "2 months free", yfeat3: "Priority support", yfeat4: "Early access to features",
     faqTitle: "Questions?",
-    faq1q: "Is NoteBack really free?", faq1a: "Yes — 3 responses per day, forever. No credit card, no signup. Pro unlocks unlimited for $19/mo.",
+    faq1q: "Is NoteBack really free?", faq1a: "Yes — 2 responses per day, forever. No credit card, no signup. Pro unlocks unlimited for $19/mo.",
     faq2q: "How does it work?", faq2a: "Paste any review from Google, Yelp, Facebook, TripAdvisor, or any platform. Select the star rating, platform, and your business type. Our AI generates a professional response in seconds.",
     faq3q: "Will the responses sound robotic?", faq3a: "No. NoteBack writes like a real business owner — warm, specific, and genuine. Every response references details from the actual review.",
     faq4q: "Which platforms does it support?", faq4a: "Google, Yelp, Facebook, TripAdvisor, Trustpilot, BBB, Nextdoor, and any other review platform.",

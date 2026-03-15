@@ -42,7 +42,8 @@ export default function RootLayout({ children }) {
           @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
           @media (max-width: 600px) {
             .hide-mobile { display: none !important; }
-            .stack-mobile { flex-direction: column !important; }
+            .stack-mobile { flex-direction: column !important; gap: 8px !important; }
+            .stack-mobile > div { flex: 1 1 auto !important; }
           }
         `}</style>
       </head>

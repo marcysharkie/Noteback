@@ -108,65 +108,63 @@ export default function Dashboard() {
         </div>
       </nav>
 
-      <div style={{ flex: 1, maxWidth: 720, width: "100%", margin: "0 auto", padding: "24px 20px" }}>
+      <div style={{ flex: 1, maxWidth: 720, width: "100%", margin: "0 auto", padding: "16px 16px" }}>
 
         {/* Status bar */}
-        <div style={{ display: "flex", gap: 12, marginBottom: 24, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
           {[
             { label: "Today", value: `${used}/${FREE_LIMIT}`, sub: "used", color: canGen ? "var(--sage)" : "var(--terra)" },
             { label: "Total replies", value: totalGenerated, sub: "all time", color: "var(--terra)" },
             { label: "History", value: "Pro", sub: "upgrade to unlock", color: "var(--dim)" },
           ].map((s, i) => (
-            <div key={i} style={{ flex: "1 1 100px", padding: "14px 16px", background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12 }}>
-              <div style={{ fontSize: 10, color: "var(--light)", letterSpacing: 1, textTransform: "uppercase", marginBottom: 4 }}>{s.label}</div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: s.color, fontFamily: "'Fraunces', serif" }}>{s.value}</div>
-              <div style={{ fontSize: 11, color: "var(--light)" }}>{s.sub}</div>
+            <div key={i} style={{ flex: "1 1 80px", padding: "10px 12px", background: "var(--card)", border: "1px solid var(--border)", borderRadius: 10 }}>
+              <div style={{ fontSize: 9, color: "var(--light)", letterSpacing: 1, textTransform: "uppercase", marginBottom: 2 }}>{s.label}</div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: s.color, fontFamily: "'Fraunces', serif" }}>{s.value}</div>
+              <div style={{ fontSize: 10, color: "var(--light)" }}>{s.sub}</div>
             </div>
           ))}
         </div>
 
         {/* GENERATE TAB */}
         {tab === "generate" && (
-          <div style={{ background: "var(--card)", borderRadius: 16, border: "1px solid var(--border)", padding: "clamp(16px, 3vw, 26px)", transition: "background 0.3s" }}>
+          <div style={{ background: "var(--card)", borderRadius: 14, border: "1px solid var(--border)", padding: "clamp(12px, 3vw, 22px)", transition: "background 0.3s" }}>
             {/* Stars + Platform */}
-            <div style={{ display: "flex", gap: 12, marginBottom: 14, flexWrap: "wrap", alignItems: "flex-end" }} className="stack-mobile">
-              <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 5 }}>Star rating</label>
-                <div style={{ display: "flex", gap: 4 }}>{[1,2,3,4,5].map(s => <button key={s} onClick={() => setStars(s)} style={{ width: 42, height: 42, borderRadius: 9, background: s <= stars ? "color-mix(in srgb, var(--star) 15%, var(--card))" : "var(--inputBg)", border: s <= stars ? "2px solid var(--star)" : "1px solid var(--border)", fontSize: 19, cursor: "pointer", color: s <= stars ? "var(--star)" : "var(--starOff)", transition: "all 0.15s" }}>★</button>)}</div>
-              </div>
-              <div style={{ flex: "1 1 180px" }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 5 }}>Platform</label>
-                <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>{PLATFORMS.map(p => <Pill key={p} active={platform === p} onClick={() => setPlatform(p)}>{p}</Pill>)}</div>
-              </div>
+            <div style={{ marginBottom: 10 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Star rating</label>
+              <div style={{ display: "flex", gap: 4 }}>{[1,2,3,4,5].map(s => <button key={s} onClick={() => setStars(s)} style={{ width: 38, height: 38, borderRadius: 8, background: s <= stars ? "color-mix(in srgb, var(--star) 15%, var(--card))" : "var(--inputBg)", border: s <= stars ? "2px solid var(--star)" : "1px solid var(--border)", fontSize: 17, cursor: "pointer", color: s <= stars ? "var(--star)" : "var(--starOff)", transition: "all 0.15s" }}>★</button>)}</div>
+            </div>
+            <div style={{ marginBottom: 10 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Platform</label>
+              <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>{PLATFORMS.map(p => <Pill key={p} active={platform === p} onClick={() => setPlatform(p)}>{p}</Pill>)}</div>
             </div>
 
             {/* Review */}
-            <div style={{ marginBottom: 14 }}>
+            <div style={{ marginBottom: 10 }}>
               <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 5 }}>Paste the customer review</label>
-              <textarea value={review} onChange={e => setReview(e.target.value)} placeholder={`Paste a customer ${platform} review here...`} rows={5} style={{ ...inp, fontSize: 15, lineHeight: 1.6, padding: "14px", borderRadius: 12, resize: "vertical" }} />
-              {review.length > 0 && <div style={{ fontSize: 11, color: "var(--light)", marginTop: 4, textAlign: "right" }}>{review.length} characters</div>}
+              <textarea value={review} onChange={e => setReview(e.target.value)} placeholder={`Paste a customer ${platform} review here...`} rows={3} style={{ ...inp, fontSize: 15, lineHeight: 1.6, padding: "12px", borderRadius: 12, resize: "vertical" }} />
+              {review.length > 0 && <div style={{ fontSize: 11, color: "var(--light)", marginTop: 3, textAlign: "right" }}>{review.length} characters</div>}
             </div>
 
             {/* Options */}
-            <div style={{ display: "flex", gap: 10, marginBottom: 14, flexWrap: "wrap" }} className="stack-mobile">
+            <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" }} className="stack-mobile">
               <div style={{ flex: "1 1 130px" }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 5 }}>Business type</label>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Business type</label>
                 <select value={bizType} onChange={e => setBizType(e.target.value)} style={{ ...inp, cursor: "pointer" }}><option value="">Select...</option>{BIZ_TYPES.map(b => <option key={b}>{b}</option>)}</select>
               </div>
               <div style={{ flex: "1 1 100px" }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 5 }}>Reply language</label>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Reply language</label>
                 <select value={respLang} onChange={e => setRespLang(e.target.value)} style={{ ...inp, cursor: "pointer" }}>{LANG_CODES.map(c => <option key={c} value={c}>{LANG_FLAGS[c]} {LANG_NAMES[c]}</option>)}</select>
               </div>
               <div style={{ flex: "1 1 180px" }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 5 }}>Tone</label>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Tone</label>
                 <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>{TONES_KEYS.map(k => { const locked = (k === "casual" || k === "apologetic"); return <Pill key={k} active={tone === k} onClick={() => locked ? setShowPricing(true) : setTone(k)}>{TONE_LABELS[k]}{locked ? " 🔒" : ""}</Pill>; })}</div>
               </div>
             </div>
 
             {/* Optional */}
-            <div style={{ display: "flex", gap: 10, marginBottom: 18, flexWrap: "wrap" }} className="stack-mobile">
-              <div style={{ flex: "1 1 150px" }}><label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 5 }}>Business name <span style={{ fontWeight: 400, color: "var(--light)" }}>(optional)</span></label><input value={bizName} onChange={e => setBizName(e.target.value)} placeholder="e.g., ProFlow Plumbing" style={inp} /></div>
-              <div style={{ flex: "1 1 110px" }}><label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 5 }}>Sign off as <span style={{ fontWeight: 400, color: "var(--light)" }}>(optional)</span></label><input value={ownerName} onChange={e => setOwnerName(e.target.value)} placeholder="e.g., Mike" style={inp} /></div>
+            <div style={{ display: "flex", gap: 8, marginBottom: 14, flexWrap: "wrap" }} className="stack-mobile">
+              <div style={{ flex: "1 1 150px" }}><label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Business name <span style={{ fontWeight: 400, color: "var(--light)" }}>(optional)</span></label><input value={bizName} onChange={e => setBizName(e.target.value)} placeholder="e.g., ProFlow Plumbing" style={inp} /></div>
+              <div style={{ flex: "1 1 110px" }}><label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Sign off as <span style={{ fontWeight: 400, color: "var(--light)" }}>(optional)</span></label><input value={ownerName} onChange={e => setOwnerName(e.target.value)} placeholder="e.g., Mike" style={inp} /></div>
             </div>
 
             {/* Generate */}

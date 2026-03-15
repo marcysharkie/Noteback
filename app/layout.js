@@ -1,7 +1,7 @@
 export const metadata = {
   title: "NoteBack — AI Review Response Generator | Google, Yelp, Facebook & More",
   description: "Paste any review from Google, Yelp, Facebook, or TripAdvisor. Get a professional, human-sounding response in seconds. Free — no signup required.",
-  icons: { icon: "/favicon.svg", apple: "/favicon.svg" },
+  icons: { icon: "/favicon.ico", apple: "/favicon.svg", shortcut: "/favicon.ico" },
   openGraph: {
     title: "NoteBack — They Left a Note. Write Back in Seconds.",
     description: "AI-powered review response generator for local businesses. Works with Google, Yelp, Facebook, TripAdvisor & more.",

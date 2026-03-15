@@ -11,7 +11,7 @@ export default function Terms() {
 
       {[
         { t: "Service description", b: "NoteBack is an AI-powered tool that generates professional responses to customer reviews. The service is provided as-is. Generated responses are suggestions — you are responsible for reviewing and editing responses before posting them publicly." },
-        { t: "Free tier", b: "The free tier provides up to 3 AI-generated review responses per day at no cost. No account or signup is required. NoteBack reserves the right to modify the free tier limits at any time." },
+        { t: "Free tier", b: "The free tier provides up to 2 AI-generated review responses per day at no cost. No account or signup is required. NoteBack reserves the right to modify the free tier limits at any time." },
         { t: "Pro subscription", b: "NoteBack Pro provides unlimited review responses for $19/month or $149/year. Subscriptions are billed through Stripe. You may cancel at any time through the Manage Subscription link or by contacting support@noteback.co. Cancellation takes effect at the end of the current billing period." },
         { t: "Refunds", b: "If you are unsatisfied with NoteBack Pro, contact support@noteback.co within 14 days of your first payment for a full refund. After 14 days, no refunds are provided, but you may cancel at any time to prevent future charges." },
         { t: "Acceptable use", b: "You may not use NoteBack to generate responses that are defamatory, fraudulent, misleading, or illegal. You may not use automated scripts or bots to access the service beyond the intended rate limits. You are solely responsible for the content you post on review platforms using NoteBack-generated responses." },

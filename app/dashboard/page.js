@@ -188,68 +188,53 @@ export default function Dashboard() {
 
         {/* GENERATE TAB */}
         {tab === "generate" && (
-          <div style={{ background: "var(--card)", borderRadius: 12, border: "1px solid var(--border)", padding: "clamp(12px, 3vw, 20px)" }}>
-            <div style={{ marginBottom: 10 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Star rating</label>
-              <div style={{ display: "flex", gap: 4 }}>{[1,2,3,4,5].map(s => <button key={s} onClick={() => setStars(s)} style={{ width: 42, height: 42, borderRadius: 9, background: s <= stars ? "color-mix(in srgb, var(--star) 14%, var(--card))" : "var(--inputBg)", border: s <= stars ? "2px solid var(--star)" : "1px solid var(--border)", fontSize: 19, cursor: "pointer", color: s <= stars ? "var(--star)" : "var(--starOff)", transition: "all 0.12s, transform 0.1s", transform: s <= stars ? "scale(1.05)" : "scale(1)" }}>&#9733;</button>)}</div>
+          <div style={{ background: "var(--card)", borderRadius: 12, border: "1px solid var(--border)", padding: "clamp(14px, 3vw, 22px)" }}>
+            <div style={{ display: "flex", gap: 12, marginBottom: 10, flexWrap: "wrap", alignItems: "flex-end" }}>
+              <div>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Rating</label>
+                <div style={{ display: "flex", gap: 3 }}>{[1,2,3,4,5].map(s => <button key={s} onClick={() => setStars(s)} style={{ width: 40, height: 40, borderRadius: 8, background: s <= stars ? "color-mix(in srgb, var(--star) 14%, var(--card))" : "var(--inputBg)", border: s <= stars ? "2px solid var(--star)" : "1px solid var(--border)", fontSize: 18, cursor: "pointer", color: s <= stars ? "var(--star)" : "var(--starOff)", transition: "all 0.12s, transform 0.1s", transform: s <= stars ? "scale(1.05)" : "scale(1)" }}>&#9733;</button>)}</div>
+              </div>
+              <div style={{ flex: 1 }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Platform</label>
+                <div style={{ display: "flex", gap: 3, flexWrap: "wrap" }}>{PLATFORMS.map(p => <Pill key={p} active={platform === p} onClick={() => setPlatform(p)}>{p}</Pill>)}</div>
+              </div>
             </div>
             <div style={{ marginBottom: 10 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Platform</label>
-              <div style={{ display: "flex", gap: 3, flexWrap: "wrap" }}>{PLATFORMS.map(p => <Pill key={p} active={platform === p} onClick={() => setPlatform(p)}>{p}</Pill>)}</div>
+              <textarea value={review} onChange={e => setReview(e.target.value)} placeholder={`Paste the ${platform} review you want to reply to...`} rows={3} style={{ ...inp, fontSize: 14, lineHeight: 1.55, padding: "12px", borderRadius: 10, resize: "vertical" }} />
             </div>
-            <div style={{ marginBottom: 10 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Customer review</label>
-              <textarea value={review} onChange={e => setReview(e.target.value)} placeholder={`Paste the ${platform} review you want to reply to...`} rows={3} style={{ ...inp, fontSize: 14, lineHeight: 1.55, padding: "11px 12px", borderRadius: 10, resize: "vertical" }} />
-            </div>
-            <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" }} className="stack-mobile">
+            <div style={{ display: "flex", gap: 6, marginBottom: 10, flexWrap: "wrap", alignItems: "flex-end" }} className="stack-mobile">
               <div style={{ flex: "1 1 120px" }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Business type</label>
-                <select value={bizType} onChange={e => setBizType(e.target.value)} style={{ ...inp, cursor: "pointer" }}><option value="">Select...</option>{BIZ_TYPES.map(b => <option key={b}>{b}</option>)}</select>
+                <label style={{ fontSize: 11, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 3 }}>Business type</label>
+                <select value={bizType} onChange={e => setBizType(e.target.value)} style={{ ...inp, cursor: "pointer", padding: "9px 10px" }}><option value="">Select...</option>{BIZ_TYPES.map(b => <option key={b}>{b}</option>)}</select>
               </div>
               <div style={{ flex: "1 1 120px" }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Language {!isPro && <span style={{ fontSize: 10, color: "var(--light)" }}>Pro</span>}</label>
+                <label style={{ fontSize: 11, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 3 }}>Language {!isPro && <span style={{ color: "var(--light)" }}>Pro</span>}</label>
                 {isPro ? (
-                  <select value={respLang} onChange={e => setRespLang(e.target.value)} style={{ ...inp, cursor: "pointer" }}>{LANG_CODES.map(c => <option key={c} value={c}>{LANG_LABELS[c]}</option>)}</select>
+                  <select value={respLang} onChange={e => setRespLang(e.target.value)} style={{ ...inp, cursor: "pointer", padding: "9px 10px" }}>{LANG_CODES.map(c => <option key={c} value={c}>{LANG_LABELS[c]}</option>)}</select>
                 ) : (
-                  <button onClick={() => setShowPricing(true)} style={{ ...inp, cursor: "pointer", textAlign: "left", color: "var(--light)" }}>English &middot; Upgrade for 8 languages</button>
+                  <button onClick={() => setShowPricing(true)} style={{ ...inp, cursor: "pointer", textAlign: "left", color: "var(--light)", padding: "9px 10px" }}>English &middot; 7 more with Pro</button>
                 )}
               </div>
-            </div>
-            <div style={{ marginBottom: 10 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Tone {!isPro && <span style={{ fontSize: 10, color: "var(--light)" }}>2 of 6 free</span>}</label>
-              <div style={{ display: "flex", gap: 3, flexWrap: "wrap" }}>{TONES.map(t => { const locked = !isPro && !t.free; return <Pill key={t.key} active={tone === t.key} locked={locked} onClick={() => locked ? setShowPricing(true) : setTone(t.key)}>{t.label}{locked ? " *" : ""}</Pill>; })}</div>
-            </div>
-            {/* Brand Voice — Pro Feature */}
-            <div style={{ borderTop: "1px solid var(--border)", paddingTop: 10, marginTop: 4, marginBottom: 10 }}>
-              {isPro && brandVoice ? (
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                  <div>
-                    <label style={{ fontSize: 11, fontWeight: 500, color: "var(--light)", letterSpacing: "0.5px", textTransform: "uppercase" }}>Brand Voice</label>
-                    <div style={{ fontSize: 12, color: "var(--dim)", marginTop: 2 }}>{brandVoice.name} / {TONES.find(t => t.key === brandVoice.tone)?.label} / {brandVoice.signoff}</div>
-                  </div>
-                  <button onClick={() => { setBvName(brandVoice.name); setBvTone(brandVoice.tone); setBvSignoff(brandVoice.signoff); setBvType(brandVoice.type); setShowBrandVoice(true); }} style={{ padding: "3px 10px", background: "var(--card)", border: "1px solid var(--border)", borderRadius: 5, fontSize: 10, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Edit</button>
-                </div>
-              ) : isPro ? (
-                <button onClick={() => setShowBrandVoice(true)} style={{ width: "100%", padding: "10px", borderRadius: 8, background: "var(--inputBg)", border: "1px dashed var(--border)", fontSize: 12, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", marginBottom: 6 }}>+ Set up Brand Voice — save your business details for every reply</button>
-              ) : (
-                <div onClick={() => setShowPricing(true)} style={{ padding: "10px 12px", borderRadius: 8, background: "var(--inputBg)", border: "1px dashed var(--border)", cursor: "pointer", marginBottom: 6 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div>
-                      <span style={{ fontSize: 11, fontWeight: 600, color: "var(--dim)" }}>Brand Voice</span>
-                      <span style={{ fontSize: 10, color: "var(--light)", marginLeft: 6 }}>Pro</span>
-                    </div>
-                    <span style={{ fontSize: 10, color: "var(--terra)", fontWeight: 600 }}>Upgrade</span>
-                  </div>
-                  <p style={{ fontSize: 11, color: "var(--light)", marginTop: 3, lineHeight: 1.4 }}>Save your business name, tone, and sign-off. Auto-fills every reply.</p>
-                </div>
-              )}
-              <label style={{ fontSize: 11, fontWeight: 500, color: "var(--light)", display: "block", marginBottom: 6, letterSpacing: "0.5px", textTransform: "uppercase" }}>Optional overrides</label>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }} className="stack-mobile">
-                <div style={{ flex: "1 1 140px" }}><label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Business name</label><input value={bizName} onChange={e => setBizName(e.target.value)} placeholder={brandVoice ? brandVoice.name : "e.g., ProFlow Plumbing"} style={inp} /></div>
-                <div style={{ flex: "1 1 100px" }}><label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Sign off as</label><input value={ownerName} onChange={e => setOwnerName(e.target.value)} placeholder={brandVoice ? brandVoice.signoff : "e.g., Mike"} style={inp} /></div>
+              <div style={{ flex: "1 1 auto" }}>
+                <label style={{ fontSize: 11, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 3 }}>Tone {!isPro && <span style={{ color: "var(--light)" }}>2/6</span>}</label>
+                <div style={{ display: "flex", gap: 3, flexWrap: "wrap" }}>{TONES.map(t => { const locked = !isPro && !t.free; return <Pill key={t.key} active={tone === t.key} locked={locked} onClick={() => locked ? setShowPricing(true) : setTone(t.key)}>{t.label}{locked ? " *" : ""}</Pill>; })}</div>
               </div>
             </div>
-            <button onClick={generate} disabled={!review.trim() || stars === 0 || loading} style={{ width: "100%", padding: "13px", borderRadius: 10, background: (!review.trim() || stars === 0) ? "var(--sandDk)" : loading ? "color-mix(in srgb, var(--terra) 70%, var(--sandDk))" : "var(--terra)", border: "none", fontSize: 15, fontWeight: 700, cursor: (!review.trim() || stars === 0 || loading) ? "not-allowed" : "pointer", color: (!review.trim() || stars === 0) ? "var(--light)" : "#fff", fontFamily: "'DM Sans', sans-serif", transition: "all 0.15s", letterSpacing: "-0.2px" }}>
+            {/* Brand Voice — compact */}
+            {isPro && brandVoice ? (
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px", background: "var(--inputBg)", borderRadius: 7, marginBottom: 10, fontSize: 11, color: "var(--dim)" }}>
+                <span>Replying as <strong style={{ color: "var(--text)" }}>{brandVoice.name}</strong>, signed by {brandVoice.signoff}</span>
+                <button onClick={() => { setBvName(brandVoice.name); setBvTone(brandVoice.tone); setBvSignoff(brandVoice.signoff); setBvType(brandVoice.type); setShowBrandVoice(true); }} style={{ background: "none", border: "none", fontSize: 10, color: "var(--terra)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Edit</button>
+              </div>
+            ) : isPro ? (
+              <button onClick={() => setShowBrandVoice(true)} style={{ width: "100%", padding: "7px", borderRadius: 7, background: "none", border: "1px dashed var(--border)", fontSize: 11, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", marginBottom: 10 }}>+ Save your brand voice for faster replies</button>
+            ) : (
+              <div onClick={() => setShowPricing(true)} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 10px", borderRadius: 7, border: "1px dashed var(--border)", cursor: "pointer", marginBottom: 10 }}>
+                <span style={{ fontSize: 11, color: "var(--dim)" }}>Brand Voice — save your details for every reply <span style={{ color: "var(--light)" }}>Pro</span></span>
+                <span style={{ fontSize: 10, color: "var(--terra)", fontWeight: 600 }}>Upgrade</span>
+              </div>
+            )}
+            <button onClick={generate} disabled={!review.trim() || stars === 0 || loading} style={{ width: "100%", padding: "14px", borderRadius: 10, background: (!review.trim() || stars === 0) ? "var(--sandDk)" : loading ? "color-mix(in srgb, var(--terra) 70%, var(--sandDk))" : "var(--terra)", border: "none", fontSize: 15, fontWeight: 700, cursor: (!review.trim() || stars === 0 || loading) ? "not-allowed" : "pointer", color: (!review.trim() || stars === 0) ? "var(--light)" : "#fff", fontFamily: "'DM Sans', sans-serif", transition: "all 0.15s" }}>
               {loading ? <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}><span style={{ width: 14, height: 14, border: "2px solid #fff4", borderTopColor: "#fff", borderRadius: "50%", animation: "spin .6s linear infinite", display: "inline-block" }} />Writing...</span> : !canGen ? "Limit reached — upgrade to Pro" : isPro ? "Write My Reply" : `Write My Reply${used > 0 ? ` (${FREE_LIMIT - used} left)` : ""}`}
             </button>
             {response && (
@@ -262,7 +247,7 @@ export default function Dashboard() {
                 <button onClick={generate} style={{ marginTop: 8, padding: "4px 10px", background: "var(--card)", border: "1px solid var(--border)", borderRadius: 6, fontSize: 11, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Try another</button>
               </div>
             )}
-            {/* Blurred Pro Preview — only for free users after generating */}
+            {/* Blurred Pro Preview */}
             {response && !isPro && (
               <div onClick={() => setShowPricing(true)} style={{ marginTop: 10, padding: "14px 16px", background: "color-mix(in srgb, var(--terra) 4%, var(--card))", borderRadius: 10, border: "1px dashed color-mix(in srgb, var(--terra) 25%, transparent)", cursor: "pointer", position: "relative", overflow: "hidden" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>

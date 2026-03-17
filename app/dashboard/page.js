@@ -248,11 +248,16 @@ export default function Dashboard() {
                 </div>
               </div>
               <div>
-                <div style={{ fontSize: 11, fontWeight: 500, color: "var(--light)", marginBottom: 4, letterSpacing: "0.5px" }}>TONE {!isPro && <span style={{ color: "var(--light)", fontSize: 9 }}>2 of 6</span>}</div>
-                <div style={{ display: "flex", gap: 3, flexWrap: "wrap" }}>{TONES.map(t => {
-                  const locked = !isPro && !t.free;
-                  return <button key={t.key} onClick={() => locked ? setShowPricing(true) : setTone(t.key)} style={{ padding: "5px 11px", borderRadius: 6, border: `1px solid ${tone === t.key ? "color-mix(in srgb, var(--terra) 40%, transparent)" : "var(--border)"}`, background: tone === t.key ? "color-mix(in srgb, var(--terra) 8%, transparent)" : "var(--inputBg)", fontSize: 12, fontWeight: tone === t.key ? 600 : 400, color: tone === t.key ? "var(--terra)" : locked ? "var(--light)" : "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "all 0.1s", opacity: locked ? 0.5 : 1 }}>{t.label}{locked ? " *" : ""}</button>;
-                })}</div>
+                <div style={{ fontSize: 11, fontWeight: 500, color: "var(--light)", marginBottom: 6, letterSpacing: "0.5px" }}>TONE</div>
+                <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 6 }}>{TONES.filter(t => t.free).map(t => (
+                  <button key={t.key} onClick={() => setTone(t.key)} style={{ padding: "6px 14px", borderRadius: 7, border: `1.5px solid ${tone === t.key ? "var(--terra)" : "var(--border)"}`, background: tone === t.key ? "color-mix(in srgb, var(--terra) 10%, var(--card))" : "var(--inputBg)", fontSize: 12, fontWeight: tone === t.key ? 600 : 400, color: tone === t.key ? "var(--terra)" : "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "all 0.12s" }}>{t.label}</button>
+                ))}</div>
+                {!isPro && <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>{TONES.filter(t => !t.free).map(t => (
+                  <button key={t.key} onClick={() => setShowPricing(true)} style={{ padding: "6px 12px", borderRadius: 7, border: "1px dashed color-mix(in srgb, var(--terra) 30%, var(--border))", background: "color-mix(in srgb, var(--terra) 3%, var(--inputBg))", fontSize: 12, fontWeight: 400, color: "var(--light)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", display: "flex", alignItems: "center", gap: 5 }}>{t.label}<span style={{ fontSize: 8, fontWeight: 700, color: "var(--terra)", padding: "1px 5px", background: "color-mix(in srgb, var(--terra) 8%, transparent)", borderRadius: 3, letterSpacing: "0.5px" }}>PRO</span></button>
+                ))}</div>}
+                {isPro && <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>{TONES.filter(t => !t.free).map(t => (
+                  <button key={t.key} onClick={() => setTone(t.key)} style={{ padding: "6px 14px", borderRadius: 7, border: `1.5px solid ${tone === t.key ? "var(--terra)" : "var(--border)"}`, background: tone === t.key ? "color-mix(in srgb, var(--terra) 10%, var(--card))" : "var(--inputBg)", fontSize: 12, fontWeight: tone === t.key ? 600 : 400, color: tone === t.key ? "var(--terra)" : "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "all 0.12s" }}>{t.label}</button>
+                ))}</div>}
               </div>
             </div>
 

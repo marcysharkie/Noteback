@@ -22,10 +22,29 @@ function checkRateLimit(key, limit = 2) {
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { review, stars, platform, bizType, bizName, ownerName, tone, language } = body;
+    const { review, stars, platform, bizType, bizName, ownerName, tone, language, proEmail } = body;
     if (!review || !stars || !platform) return Response.json({ error: "Missing required fields" }, { status: 400 });
 
-    const isPro = body.isPro === true;
+    // Check Pro status server-side via Stripe
+    let isPro = false;
+    if (proEmail) {
+      try {
+        const STRIPE_SECRET = process.env.STRIPE_SECRET_KEY;
+        if (STRIPE_SECRET) {
+          const custRes = await fetch(`https://api.stripe.com/v1/customers?email=${encodeURIComponent(proEmail.toLowerCase().trim())}&limit=3`, { headers: { Authorization: `Bearer ${STRIPE_SECRET}` } });
+          if (custRes.ok) {
+            const custData = await custRes.json();
+            for (const cust of (custData.data || [])) {
+              const subRes = await fetch(`https://api.stripe.com/v1/subscriptions?customer=${cust.id}&status=active&limit=1`, { headers: { Authorization: `Bearer ${STRIPE_SECRET}` } });
+              if (subRes.ok) { const subData = await subRes.json(); if (subData.data?.length > 0) { isPro = true; break; } }
+              const trialRes = await fetch(`https://api.stripe.com/v1/subscriptions?customer=${cust.id}&status=trialing&limit=1`, { headers: { Authorization: `Bearer ${STRIPE_SECRET}` } });
+              if (trialRes.ok) { const trialData = await trialRes.json(); if (trialData.data?.length > 0) { isPro = true; break; } }
+            }
+          }
+        }
+      } catch (e) { console.error("Stripe check error:", e); }
+    }
+
     if (!isPro) {
       const key = getRateLimitKey(req);
       const { allowed } = checkRateLimit(key, 2);

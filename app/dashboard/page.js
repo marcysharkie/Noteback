@@ -68,6 +68,13 @@ export default function Dashboard() {
       if (ex) { const e = JSON.parse(ex); setReview(e.text || ""); setStars(e.stars || 0); setBizType(e.biz || ""); setPlatform(e.platform || "Google"); localStorage.removeItem("nb_example"); setDemoVisible(false); }
       // If they've already used the tool, hide demo
       if (tg > 0) setDemoVisible(false);
+      // Auto-verify from Stripe redirect: ?verified=email@example.com
+      const params = new URLSearchParams(window.location.search);
+      const verifyEmail = params.get("verified");
+      if (verifyEmail && verifyEmail.includes("@") && !saved?.isPro) {
+        autoVerify(verifyEmail);
+        window.history.replaceState({}, "", "/dashboard");
+      }
     } catch {}
   }, []);
 
@@ -85,6 +92,14 @@ export default function Dashboard() {
 
   const toggleDark = () => { const n = !dark; setDark(n); document.documentElement.setAttribute("data-theme", n ? "dark" : ""); localStorage.setItem("nb_theme", n ? "dark" : "light"); };
   const canGen = isPro || used < FREE_LIMIT;
+
+  const autoVerify = async (email) => {
+    try {
+      const res = await fetch("/api/verify-pro", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: email.toLowerCase().trim() }) });
+      const data = await res.json();
+      if (data.isPro) { setIsPro(true); setProEmail(email); setProPlan(data.plan || "monthly"); try { localStorage.setItem("nb_pro", JSON.stringify({ email, isPro: true, plan: data.plan })); } catch {} }
+    } catch {}
+  };
 
   const scrollToForm = () => { setDemoVisible(false); formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }); };
 
@@ -211,6 +226,20 @@ export default function Dashboard() {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                 <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 22, fontWeight: 400, color: "var(--text)", margin: 0 }}>Write a reply</h1>
                 {!isPro && <span style={{ fontSize: 11, color: canGen ? "var(--sage)" : "var(--terra)", fontWeight: 600 }}>{canGen ? "1 free reply" : "Free reply used"}</span>}
+              </div>
+            )}
+
+            {/* Verify banner — shows when limit hit */}
+            {!isPro && !canGen && (
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", background: "color-mix(in srgb, var(--terra) 6%, var(--card))", borderRadius: 10, border: "1px solid color-mix(in srgb, var(--terra) 20%, transparent)", marginBottom: 14, flexWrap: "wrap", gap: 8 }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>Need more replies?</div>
+                  <div style={{ fontSize: 12, color: "var(--dim)", marginTop: 2 }}>Go Pro for unlimited, or verify if you already subscribed.</div>
+                </div>
+                <div style={{ display: "flex", gap: 6 }}>
+                  <button onClick={() => setShowVerify(true)} style={{ padding: "6px 14px", borderRadius: 7, border: "1px solid var(--border)", background: "var(--card)", fontSize: 12, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontWeight: 500 }}>Verify Pro</button>
+                  <button onClick={() => setShowPricing(true)} style={{ padding: "6px 14px", borderRadius: 7, border: "none", background: "var(--terra)", fontSize: 12, color: "#fff", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontWeight: 600 }}>Go Pro</button>
+                </div>
               </div>
             )}
 

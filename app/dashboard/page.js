@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 
-const FREE_LIMIT = 2;
+const FREE_LIMIT = 1;
 const BIZ_TYPES = ["Restaurant","Plumber","HVAC","Electrician","Dentist","Auto Repair","Salon / Barbershop","Med Spa","Cleaning Service","Roofing","Landscaping","Veterinarian","Real Estate","Law Office","Retail","Other"];
 const TONES = [
   { key: "warm", label: "Warm & Friendly", free: true },

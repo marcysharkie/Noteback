@@ -7,7 +7,7 @@ function getRateLimitKey(req) {
   return `${ip}:${date}`;
 }
 
-function checkRateLimit(key, limit = 2) {
+function checkRateLimit(key, limit = 1) {
   const now = Date.now();
   for (const [k, v] of rateLimitMap) {
     if (now - v.timestamp > 86400000) rateLimitMap.delete(k);
@@ -47,7 +47,7 @@ export async function POST(req) {
 
     if (!isPro) {
       const key = getRateLimitKey(req);
-      const { allowed } = checkRateLimit(key, 2);
+      const { allowed } = checkRateLimit(key, 1);
       if (!allowed) return Response.json({ error: "limit", remaining: 0 }, { status: 429 });
     }
 

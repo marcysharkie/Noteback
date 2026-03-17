@@ -75,7 +75,7 @@ export default function Home() {
           <R d={0.3}>
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
               <a href="/dashboard" style={{ padding: "14px 28px", background: "var(--terra)", borderRadius: 10, fontSize: 15, fontWeight: 600, color: "#fff", textDecoration: "none", fontFamily: "'DM Sans', sans-serif" }}>Write a Reply — Free</a>
-              <span style={{ fontSize: 13, color: "var(--light)" }}>2 free replies per day. No account needed.</span>
+              <span style={{ fontSize: 13, color: "var(--light)" }}>1 free reply per day. No account needed.</span>
             </div>
           </R>
         </section>
@@ -171,7 +171,7 @@ export default function Home() {
                 <div style={{ padding: "14px 18px", fontSize: 13, fontWeight: 600, color: "var(--terra)", textAlign: "center" }}>Pro</div>
               </div>
               {[
-                { f: "Daily replies", free: "2", pro: "Unlimited" },
+                { f: "Daily replies", free: "1", pro: "Unlimited" },
                 { f: "Review platforms", free: "All 8+", pro: "All 8+" },
                 { f: "Tone styles", free: "2", pro: "All 6" },
                 { f: "Languages", free: "English only", pro: "All 8" },
@@ -203,7 +203,7 @@ export default function Home() {
                 <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text)", marginBottom: 4 }}>Free</div>
                 <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 36, color: "var(--text)" }}>$0</div>
                 <div style={{ fontSize: 13, color: "var(--dim)", marginBottom: 18 }}>Forever</div>
-                {["2 replies per day", "2 tone styles", "English only", "All platforms", "Instant copy"].map(f => <div key={f} style={{ fontSize: 13, color: "var(--dim)", marginBottom: 6, paddingLeft: 16, position: "relative" }}><span style={{ position: "absolute", left: 0, color: "var(--sage)" }}>+</span>{f}</div>)}
+                {["1 reply per day", "2 tones", "English only", "All platforms", "Instant copy"].map(f => <div key={f} style={{ fontSize: 13, color: "var(--dim)", marginBottom: 6, paddingLeft: 16, position: "relative" }}><span style={{ position: "absolute", left: 0, color: "var(--sage)" }}>+</span>{f}</div>)}
                 <a href="/dashboard" style={{ display: "block", textAlign: "center", marginTop: 16, padding: 12, borderRadius: 10, border: "1px solid var(--border)", fontSize: 14, fontWeight: 600, color: "var(--text)", textDecoration: "none" }}>Start Free</a>
               </div>
             </R>
@@ -292,7 +292,7 @@ export default function Home() {
 function FAQ() {
   const [open, setOpen] = useState(null);
   const faqs = [
-    { q: "Is NoteBack really free?", a: "Yes. 2 replies per day, forever. No credit card, no signup required. Pro unlocks unlimited replies for $19/month." },
+    { q: "Is NoteBack really free?", a: "Yes. 1 reply per day, forever. No credit card, no signup required. Pro unlocks unlimited replies for $19/month." },
     { q: "How does it work?", a: "Paste a customer review you received on Google, Yelp, Facebook, or any platform. Select the star rating and your business type. NoteBack writes a professional owner reply in seconds." },
     { q: "Will the replies sound robotic?", a: "No. NoteBack writes like a real business owner. Every reply references specific details from the customer's review and matches the platform's conversational style." },
     { q: "Which platforms does it support?", a: "Google, Yelp, Facebook, TripAdvisor, Trustpilot, BBB, Nextdoor, and any other review platform." },

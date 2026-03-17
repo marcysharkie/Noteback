@@ -48,6 +48,12 @@ export default function Dashboard() {
   const [proPlan, setProPlan] = useState("");
   const [showVerify, setShowVerify] = useState(false);
   const [verifyInput, setVerifyInput] = useState("");
+  const [brandVoice, setBrandVoice] = useState(null);
+  const [showBrandVoice, setShowBrandVoice] = useState(false);
+  const [bvName, setBvName] = useState("");
+  const [bvTone, setBvTone] = useState("warm");
+  const [bvSignoff, setBvSignoff] = useState("");
+  const [bvType, setBvType] = useState("");
 
   useEffect(() => {
     try {
@@ -57,6 +63,8 @@ export default function Dashboard() {
       const tg = parseInt(localStorage.getItem("nb_total") || "0"); setTotalGenerated(tg);
       const saved = JSON.parse(localStorage.getItem("nb_pro") || "null");
       if (saved && saved.email && saved.isPro) { setIsPro(true); setProEmail(saved.email); setProPlan(saved.plan || "monthly"); const h = JSON.parse(localStorage.getItem("nb_history") || "[]"); setHistory(h); }
+      const bv = JSON.parse(localStorage.getItem("nb_brandvoice") || "null");
+      if (bv) { setBrandVoice(bv); setBizName(bv.name || ""); setOwnerName(bv.signoff || ""); setTone(bv.tone || "warm"); setBizType(bv.type || ""); }
       const ex = localStorage.getItem("nb_example");
       if (ex) { const e = JSON.parse(ex); setReview(e.text || ""); setStars(e.stars || 0); setBizType(e.biz || ""); setPlatform(e.platform || "Google"); localStorage.removeItem("nb_example"); }
     } catch {}
@@ -211,11 +219,34 @@ export default function Dashboard() {
               <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Tone {!isPro && <span style={{ fontSize: 10, color: "var(--light)" }}>2 of 6 free</span>}</label>
               <div style={{ display: "flex", gap: 3, flexWrap: "wrap" }}>{TONES.map(t => { const locked = !isPro && !t.free; return <Pill key={t.key} active={tone === t.key} locked={locked} onClick={() => locked ? setShowPricing(true) : setTone(t.key)}>{t.label}{locked ? " *" : ""}</Pill>; })}</div>
             </div>
+            {/* Brand Voice — Pro Feature */}
             <div style={{ borderTop: "1px solid var(--border)", paddingTop: 10, marginTop: 4, marginBottom: 10 }}>
-              <label style={{ fontSize: 11, fontWeight: 500, color: "var(--light)", display: "block", marginBottom: 6, letterSpacing: "0.5px", textTransform: "uppercase" }}>Optional details</label>
+              {isPro && brandVoice ? (
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                  <div>
+                    <label style={{ fontSize: 11, fontWeight: 500, color: "var(--light)", letterSpacing: "0.5px", textTransform: "uppercase" }}>Brand Voice</label>
+                    <div style={{ fontSize: 12, color: "var(--dim)", marginTop: 2 }}>{brandVoice.name} / {TONES.find(t => t.key === brandVoice.tone)?.label} / {brandVoice.signoff}</div>
+                  </div>
+                  <button onClick={() => { setBvName(brandVoice.name); setBvTone(brandVoice.tone); setBvSignoff(brandVoice.signoff); setBvType(brandVoice.type); setShowBrandVoice(true); }} style={{ padding: "3px 10px", background: "var(--card)", border: "1px solid var(--border)", borderRadius: 5, fontSize: 10, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Edit</button>
+                </div>
+              ) : isPro ? (
+                <button onClick={() => setShowBrandVoice(true)} style={{ width: "100%", padding: "10px", borderRadius: 8, background: "var(--inputBg)", border: "1px dashed var(--border)", fontSize: 12, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", marginBottom: 6 }}>+ Set up Brand Voice — save your business details for every reply</button>
+              ) : (
+                <div onClick={() => setShowPricing(true)} style={{ padding: "10px 12px", borderRadius: 8, background: "var(--inputBg)", border: "1px dashed var(--border)", cursor: "pointer", marginBottom: 6 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: "var(--dim)" }}>Brand Voice</span>
+                      <span style={{ fontSize: 10, color: "var(--light)", marginLeft: 6 }}>Pro</span>
+                    </div>
+                    <span style={{ fontSize: 10, color: "var(--terra)", fontWeight: 600 }}>Upgrade</span>
+                  </div>
+                  <p style={{ fontSize: 11, color: "var(--light)", marginTop: 3, lineHeight: 1.4 }}>Save your business name, tone, and sign-off. Auto-fills every reply.</p>
+                </div>
+              )}
+              <label style={{ fontSize: 11, fontWeight: 500, color: "var(--light)", display: "block", marginBottom: 6, letterSpacing: "0.5px", textTransform: "uppercase" }}>Optional overrides</label>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }} className="stack-mobile">
-                <div style={{ flex: "1 1 140px" }}><label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Business name</label><input value={bizName} onChange={e => setBizName(e.target.value)} placeholder="e.g., ProFlow Plumbing" style={inp} /></div>
-                <div style={{ flex: "1 1 100px" }}><label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Sign off as</label><input value={ownerName} onChange={e => setOwnerName(e.target.value)} placeholder="e.g., Mike" style={inp} /></div>
+                <div style={{ flex: "1 1 140px" }}><label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Business name</label><input value={bizName} onChange={e => setBizName(e.target.value)} placeholder={brandVoice ? brandVoice.name : "e.g., ProFlow Plumbing"} style={inp} /></div>
+                <div style={{ flex: "1 1 100px" }}><label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Sign off as</label><input value={ownerName} onChange={e => setOwnerName(e.target.value)} placeholder={brandVoice ? brandVoice.signoff : "e.g., Mike"} style={inp} /></div>
               </div>
             </div>
             <button onClick={generate} disabled={!review.trim() || stars === 0 || loading} style={{ width: "100%", padding: "13px", borderRadius: 10, background: (!review.trim() || stars === 0) ? "var(--sandDk)" : loading ? "color-mix(in srgb, var(--terra) 70%, var(--sandDk))" : "var(--terra)", border: "none", fontSize: 15, fontWeight: 700, cursor: (!review.trim() || stars === 0 || loading) ? "not-allowed" : "pointer", color: (!review.trim() || stars === 0) ? "var(--light)" : "#fff", fontFamily: "'DM Sans', sans-serif", transition: "all 0.15s", letterSpacing: "-0.2px" }}>
@@ -229,6 +260,22 @@ export default function Dashboard() {
                 </div>
                 <p style={{ fontSize: 14, lineHeight: 1.7, color: "var(--text)", margin: 0 }}>{response}</p>
                 <button onClick={generate} style={{ marginTop: 8, padding: "4px 10px", background: "var(--card)", border: "1px solid var(--border)", borderRadius: 6, fontSize: 11, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Try another</button>
+              </div>
+            )}
+            {/* Blurred Pro Preview — only for free users after generating */}
+            {response && !isPro && (
+              <div onClick={() => setShowPricing(true)} style={{ marginTop: 10, padding: "14px 16px", background: "color-mix(in srgb, var(--terra) 4%, var(--card))", borderRadius: 10, border: "1px dashed color-mix(in srgb, var(--terra) 25%, transparent)", cursor: "pointer", position: "relative", overflow: "hidden" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: "var(--terra)" }}>Pro version — more detailed, empathetic tone</span>
+                  <span style={{ fontSize: 10, padding: "2px 8px", background: "var(--terra)", color: "#fff", borderRadius: 4, fontWeight: 600 }}>PRO</span>
+                </div>
+                <div style={{ filter: "blur(5px)", userSelect: "none", pointerEvents: "none" }}>
+                  <p style={{ fontSize: 14, lineHeight: 1.7, color: "var(--dim)", margin: 0 }}>Thank you so much for taking the time to share your experience with us. We truly appreciate your honest feedback and want you to know that we take every comment seriously. Your satisfaction is our top priority, and we would love the opportunity to make things right. Please don't hesitate to reach out to us directly so we can address your concerns personally and ensure your next experience exceeds your expectations.</p>
+                </div>
+                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 50, background: "linear-gradient(transparent, var(--card))" }} />
+                <div style={{ textAlign: "center", marginTop: -8, position: "relative", zIndex: 1 }}>
+                  <span style={{ fontSize: 12, fontWeight: 600, color: "var(--terra)" }}>Unlock Pro replies — $19/mo</span>
+                </div>
               </div>
             )}
           </div>
@@ -294,6 +341,35 @@ export default function Dashboard() {
           </div>
         </div>
       </footer>
+
+      {/* BRAND VOICE MODAL */}
+      {showBrandVoice && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(28,25,23,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999, padding: 16 }} onClick={() => setShowBrandVoice(false)}>
+          <div onClick={e => e.stopPropagation()} style={{ background: "var(--card)", borderRadius: 14, padding: 24, maxWidth: 400, width: "100%", border: "1px solid var(--border)" }}>
+            <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 22, fontWeight: 400, color: "var(--text)", marginBottom: 4 }}>Brand Voice</h2>
+            <p style={{ fontSize: 13, color: "var(--dim)", marginBottom: 16, lineHeight: 1.5 }}>Save your business details. Every reply will use these automatically.</p>
+            <div style={{ marginBottom: 10 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Business name</label>
+              <input value={bvName} onChange={e => setBvName(e.target.value)} placeholder="e.g., ProFlow Plumbing" style={inp} />
+            </div>
+            <div style={{ marginBottom: 10 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Business type</label>
+              <select value={bvType} onChange={e => setBvType(e.target.value)} style={{ ...inp, cursor: "pointer" }}><option value="">Select...</option>{BIZ_TYPES.map(b => <option key={b}>{b}</option>)}</select>
+            </div>
+            <div style={{ marginBottom: 10 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Default tone</label>
+              <div style={{ display: "flex", gap: 3, flexWrap: "wrap" }}>{TONES.map(t => <Pill key={t.key} active={bvTone === t.key} onClick={() => setBvTone(t.key)}>{t.label}</Pill>)}</div>
+            </div>
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Sign off as</label>
+              <input value={bvSignoff} onChange={e => setBvSignoff(e.target.value)} placeholder="e.g., Mike" style={inp} />
+            </div>
+            <button onClick={() => { const bv = { name: bvName, type: bvType, tone: bvTone, signoff: bvSignoff }; setBrandVoice(bv); setBizName(bv.name); setBizType(bv.type); setTone(bv.tone); setOwnerName(bv.signoff); setShowBrandVoice(false); try { localStorage.setItem("nb_brandvoice", JSON.stringify(bv)); } catch {} }} style={{ width: "100%", padding: 11, borderRadius: 8, background: "var(--terra)", border: "none", fontSize: 13, fontWeight: 600, color: "#fff", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Save Brand Voice</button>
+            {brandVoice && <button onClick={() => { setBrandVoice(null); setShowBrandVoice(false); try { localStorage.removeItem("nb_brandvoice"); } catch {} }} style={{ display: "block", margin: "8px auto 0", background: "none", border: "none", fontSize: 11, color: "var(--light)", cursor: "pointer" }}>Remove Brand Voice</button>}
+            <button onClick={() => setShowBrandVoice(false)} style={{ display: "block", margin: "6px auto 0", background: "none", border: "none", fontSize: 12, color: "var(--dim)", cursor: "pointer" }}>Cancel</button>
+          </div>
+        </div>
+      )}
 
       {/* VERIFY MODAL */}
       {showVerify && (

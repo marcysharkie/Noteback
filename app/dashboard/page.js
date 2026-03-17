@@ -19,16 +19,10 @@ const STRIPE_MONTHLY = "https://buy.stripe.com/aFa4gy6QjcMBebZf68fUQ00";
 const STRIPE_YEARLY = "https://buy.stripe.com/28E14m1vZbIxgk73nqfUQ01";
 const STRIPE_PORTAL = "https://billing.stripe.com/p/login/aFa4gy6QjcMBebZf68fUQ00";
 
-function Pill({ active, locked, children, onClick }) {
-  return <button onClick={onClick} style={{ padding: "6px 12px", borderRadius: 7, background: active ? "color-mix(in srgb, var(--terra) 12%, transparent)" : "var(--inputBg)", border: `1px solid ${active ? "color-mix(in srgb, var(--terra) 35%, transparent)" : "var(--border)"}`, fontSize: 12, fontWeight: active ? 600 : 400, color: active ? "var(--terra)" : locked ? "var(--light)" : "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "all 0.15s", opacity: locked ? 0.6 : 1 }}>{children}</button>;
-}
-
 export default function Dashboard() {
   const [review, setReview] = useState("");
   const [stars, setStars] = useState(0);
   const [bizType, setBizType] = useState("");
-  const [bizName, setBizName] = useState("");
-  const [ownerName, setOwnerName] = useState("");
   const [platform, setPlatform] = useState("Google");
   const [tone, setTone] = useState("warm");
   const [respLang, setRespLang] = useState("en");
@@ -39,7 +33,7 @@ export default function Dashboard() {
   const [copied, setCopied] = useState(false);
   const [dark, setDark] = useState(false);
   const [history, setHistory] = useState([]);
-  const [tab, setTab] = useState("generate");
+  const [tab, setTab] = useState("write");
   const [totalGenerated, setTotalGenerated] = useState(0);
   const [isPro, setIsPro] = useState(false);
   const [proEmail, setProEmail] = useState("");
@@ -48,12 +42,10 @@ export default function Dashboard() {
   const [proPlan, setProPlan] = useState("");
   const [showVerify, setShowVerify] = useState(false);
   const [verifyInput, setVerifyInput] = useState("");
-  const [brandVoice, setBrandVoice] = useState(null);
-  const [showBrandVoice, setShowBrandVoice] = useState(false);
-  const [bvName, setBvName] = useState("");
-  const [bvTone, setBvTone] = useState("warm");
-  const [bvSignoff, setBvSignoff] = useState("");
-  const [bvType, setBvType] = useState("");
+  const [showSettings, setShowSettings] = useState(false);
+  // Brand voice
+  const [brandName, setBrandName] = useState("");
+  const [brandSignoff, setBrandSignoff] = useState("");
 
   useEffect(() => {
     try {
@@ -63,8 +55,8 @@ export default function Dashboard() {
       const tg = parseInt(localStorage.getItem("nb_total") || "0"); setTotalGenerated(tg);
       const saved = JSON.parse(localStorage.getItem("nb_pro") || "null");
       if (saved && saved.email && saved.isPro) { setIsPro(true); setProEmail(saved.email); setProPlan(saved.plan || "monthly"); const h = JSON.parse(localStorage.getItem("nb_history") || "[]"); setHistory(h); }
-      const bv = JSON.parse(localStorage.getItem("nb_brandvoice") || "null");
-      if (bv) { setBrandVoice(bv); setBizName(bv.name || ""); setOwnerName(bv.signoff || ""); setTone(bv.tone || "warm"); setBizType(bv.type || ""); }
+      const bv = JSON.parse(localStorage.getItem("nb_brand") || "null");
+      if (bv) { setBrandName(bv.name || ""); setBrandSignoff(bv.signoff || ""); setBizType(bv.type || ""); }
       const ex = localStorage.getItem("nb_example");
       if (ex) { const e = JSON.parse(ex); setReview(e.text || ""); setStars(e.stars || 0); setBizType(e.biz || ""); setPlatform(e.platform || "Google"); localStorage.removeItem("nb_example"); }
     } catch {}
@@ -75,7 +67,7 @@ export default function Dashboard() {
 
   const verifyPro = async () => {
     const email = verifyInput.trim().toLowerCase();
-    if (!email || !email.includes("@")) { setProError("Enter a valid email address."); return; }
+    if (!email || !email.includes("@")) { setProError("Enter a valid email."); return; }
     setProVerifying(true); setProError("");
     try {
       const res = await fetch("/api/verify-pro", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) });
@@ -88,6 +80,12 @@ export default function Dashboard() {
 
   const logoutPro = () => { setIsPro(false); setProEmail(""); setProPlan(""); setHistory([]); try { localStorage.removeItem("nb_pro"); localStorage.removeItem("nb_history"); } catch {} };
 
+  const saveBrand = () => {
+    const bv = { name: brandName, signoff: brandSignoff, type: bizType };
+    try { localStorage.setItem("nb_brand", JSON.stringify(bv)); } catch {}
+    setShowSettings(false);
+  };
+
   const generate = async () => {
     if (!review.trim() || stars === 0) return;
     if (!canGen) { setShowPricing(true); return; }
@@ -95,7 +93,7 @@ export default function Dashboard() {
     try {
       const res = await fetch("/api/generate", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ review, stars, platform, bizType, bizName, ownerName, tone: TONES.find(t => t.key === tone)?.label || tone, language: LANG_API[respLang] || "English", proEmail: isPro ? proEmail : null }),
+        body: JSON.stringify({ review, stars, platform, bizType, bizName: brandName, ownerName: brandSignoff, tone: TONES.find(t => t.key === tone)?.label || tone, language: LANG_API[respLang] || "English", proEmail: isPro ? proEmail : null }),
       });
       const data = await res.json();
       if (data.error) { if (res.status === 429) { setShowPricing(true); setLoading(false); return; } setResponse(data.error); }
@@ -113,282 +111,253 @@ export default function Dashboard() {
   const deleteHist = (id) => { const n = history.filter(h => h.id !== id); setHistory(n); try { localStorage.setItem("nb_history", JSON.stringify(n)); } catch {} };
   const clearHist = () => { setHistory([]); try { localStorage.removeItem("nb_history"); } catch {} };
 
-  const inp = { width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--border)", background: "var(--inputBg)", fontSize: 14, color: "var(--text)", fontFamily: "'DM Sans', sans-serif", outline: "none", boxSizing: "border-box" };
+  const s = { input: { width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--border)", background: "var(--inputBg)", fontSize: 14, color: "var(--text)", fontFamily: "'DM Sans', sans-serif", outline: "none", boxSizing: "border-box" } };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-      {/* NAV */}
-      <nav style={{ padding: "10px 16px", borderBottom: "1px solid var(--border)", background: "var(--card)" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", maxWidth: 960, margin: "0 auto", gap: 4 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--bg)" }}>
+
+      {/* ── TOPBAR ── */}
+      <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border)", background: "var(--card)" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", maxWidth: 800, margin: "0 auto" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <a href="/" style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none" }}>
-              <div style={{ width: 26, height: 26, borderRadius: 6, background: "var(--terra)", display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ fontFamily: "'DM Serif Display', serif", fontSize: 13, color: "#fff" }}>N</span></div>
-              <span className="hide-mobile" style={{ fontFamily: "'DM Serif Display', serif", fontSize: 16, color: "var(--text)" }}>NoteBack</span>
+              <div style={{ width: 28, height: 28, borderRadius: 7, background: "var(--terra)", display: "flex", alignItems: "center", justifyContent: "center" }}><span style={{ fontFamily: "'DM Serif Display', serif", fontSize: 14, color: "#fff" }}>N</span></div>
             </a>
-            <div style={{ display: "flex", gap: 2, marginLeft: 6 }}>
-              <button onClick={() => setTab("generate")} style={{ padding: "5px 12px", borderRadius: 6, background: tab === "generate" ? "color-mix(in srgb, var(--terra) 10%, transparent)" : "transparent", border: "none", fontSize: 12, fontWeight: tab === "generate" ? 600 : 400, color: tab === "generate" ? "var(--terra)" : "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Write Reply</button>
-              <button onClick={() => setTab("history")} style={{ padding: "5px 12px", borderRadius: 6, background: tab === "history" ? "color-mix(in srgb, var(--terra) 10%, transparent)" : "transparent", border: "none", fontSize: 12, fontWeight: tab === "history" ? 600 : 400, color: tab === "history" ? "var(--terra)" : "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>{isPro ? `History (${history.length})` : "History"}</button>
-            </div>
+            <div style={{ height: 20, width: 1, background: "var(--border)" }} />
+            {["write", "history"].map(t => (
+              <button key={t} onClick={() => setTab(t)} style={{ padding: "4px 12px", borderRadius: 6, background: tab === t ? "var(--inputBg)" : "transparent", border: "none", fontSize: 12, fontWeight: tab === t ? 600 : 400, color: tab === t ? "var(--text)" : "var(--light)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", textTransform: "capitalize" }}>{t === "write" ? "Write" : isPro ? `History (${history.length})` : "History"}</button>
+            ))}
           </div>
-          <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-            <button onClick={toggleDark} style={{ width: 32, height: 32, borderRadius: 7, background: "var(--inputBg)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", overflow: "hidden" }}><div style={{ width: 14, height: 14, borderRadius: 7, background: dark ? "var(--star)" : "var(--dim)", transition: "background 0.2s" }} /></button>
+          <div style={{ display: "flex", gap: 5, alignItems: "center" }}>
+            <button onClick={toggleDark} style={{ width: 30, height: 30, borderRadius: 6, background: "var(--inputBg)", border: "1px solid var(--border)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><div style={{ width: 10, height: 10, borderRadius: 5, background: dark ? "var(--star)" : "var(--dim)" }} /></button>
+            {isPro && <button onClick={() => setShowSettings(true)} style={{ padding: "4px 10px", borderRadius: 6, border: "1px solid var(--border)", background: "var(--inputBg)", fontSize: 11, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Settings</button>}
             {isPro ? (
-              <>
-                <span style={{ fontSize: 10, padding: "4px 10px", background: "color-mix(in srgb, var(--sage) 10%, transparent)", border: "1px solid color-mix(in srgb, var(--sage) 25%, transparent)", borderRadius: 6, color: "var(--sage)", fontWeight: 600, fontFamily: "'DM Sans', sans-serif" }}>PRO</span>
-                <a href={STRIPE_PORTAL} target="_blank" rel="noopener" className="hide-mobile" style={{ padding: "5px 10px", border: "1px solid var(--border)", borderRadius: 6, fontSize: 11, color: "var(--dim)", textDecoration: "none", fontFamily: "'DM Sans', sans-serif" }}>Manage</a>
-              </>
+              <span style={{ fontSize: 10, padding: "4px 10px", background: "color-mix(in srgb, var(--sage) 10%, transparent)", border: "1px solid color-mix(in srgb, var(--sage) 20%, transparent)", borderRadius: 6, color: "var(--sage)", fontWeight: 600 }}>PRO</span>
             ) : (
-              <>
-                <button onClick={() => setShowVerify(true)} className="hide-mobile" style={{ padding: "5px 10px", background: "none", border: "1px solid var(--border)", borderRadius: 6, fontSize: 11, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Verify Pro</button>
-                <button onClick={() => setShowPricing(true)} style={{ padding: "5px 12px", background: "var(--terra)", border: "none", borderRadius: 6, fontSize: 11, color: "#fff", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", fontWeight: 600 }}>Go Pro</button>
-              </>
+              <button onClick={() => setShowPricing(true)} style={{ padding: "5px 14px", background: "var(--terra)", border: "none", borderRadius: 6, fontSize: 11, fontWeight: 600, color: "#fff", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Upgrade</button>
             )}
           </div>
         </div>
-      </nav>
+      </div>
 
-      <div style={{ flex: 1, maxWidth: 680, width: "100%", margin: "0 auto", padding: "16px 14px" }}>
-        {/* STATUS */}
-        <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
-          {isPro ? (
-            <>
-              <div style={{ flex: 1, padding: "10px 12px", background: "color-mix(in srgb, var(--sage) 5%, var(--card))", border: "1px solid color-mix(in srgb, var(--sage) 18%, transparent)", borderRadius: 10 }}>
-                <div style={{ fontSize: 9, color: "var(--sage)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 2 }}>Plan</div>
-                <div style={{ fontSize: 17, fontWeight: 700, color: "var(--sage)", fontFamily: "'DM Serif Display', serif" }}>Pro</div>
-                <div style={{ fontSize: 10, color: "var(--sage)" }}>{proPlan}</div>
-              </div>
-              <div style={{ flex: 1, padding: "10px 12px", background: "var(--card)", border: "1px solid var(--border)", borderRadius: 10 }}>
-                <div style={{ fontSize: 9, color: "var(--light)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 2 }}>Replies</div>
-                <div style={{ fontSize: 17, fontWeight: 700, color: "var(--terra)", fontFamily: "'DM Serif Display', serif" }}>Unlimited</div>
-              </div>
-              <div style={{ flex: 1, padding: "10px 12px", background: "var(--card)", border: "1px solid var(--border)", borderRadius: 10 }}>
-                <div style={{ fontSize: 9, color: "var(--light)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 2 }}>Saved</div>
-                <div style={{ fontSize: 17, fontWeight: 700, color: "var(--text)", fontFamily: "'DM Serif Display', serif" }}>{history.length}</div>
-              </div>
-            </>
-          ) : (
-            <>
-              <div style={{ flex: 1, padding: "10px 12px", background: "var(--card)", border: "1px solid var(--border)", borderRadius: 10 }}>
-                <div style={{ fontSize: 9, color: "var(--light)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 2 }}>Today</div>
-                <div style={{ fontSize: 17, fontWeight: 700, color: canGen ? "var(--sage)" : "var(--terra)", fontFamily: "'DM Serif Display', serif" }}>{used}/{FREE_LIMIT}</div>
-                <div style={{ fontSize: 10, color: "var(--light)" }}>used</div>
-              </div>
-              <div style={{ flex: 1, padding: "10px 12px", background: "var(--card)", border: "1px solid var(--border)", borderRadius: 10 }}>
-                <div style={{ fontSize: 9, color: "var(--light)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 2 }}>Total</div>
-                <div style={{ fontSize: 17, fontWeight: 700, color: "var(--text)", fontFamily: "'DM Serif Display', serif" }}>{totalGenerated}</div>
-              </div>
-              <div onClick={() => setShowPricing(true)} style={{ flex: 1, padding: "10px 12px", background: "color-mix(in srgb, var(--terra) 4%, var(--card))", border: "1px solid color-mix(in srgb, var(--terra) 15%, transparent)", borderRadius: 10, cursor: "pointer", transition: "border-color 0.15s" }}>
-                <div style={{ fontSize: 9, color: "var(--light)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 2 }}>Pro</div>
-                <div style={{ fontSize: 14, fontWeight: 600, color: "var(--terra)" }}>Upgrade</div>
-                <div style={{ fontSize: 10, color: "var(--light)" }}>$19/mo</div>
-              </div>
-            </>
-          )}
-        </div>
+      {/* ── MAIN ── */}
+      <div style={{ flex: 1, maxWidth: 640, width: "100%", margin: "0 auto", padding: "20px 16px" }}>
 
-        {/* GENERATE TAB */}
-        {tab === "generate" && (
-          <div style={{ background: "var(--card)", borderRadius: 12, border: "1px solid var(--border)", padding: "clamp(14px, 3vw, 22px)" }}>
-            <div style={{ display: "flex", gap: 12, marginBottom: 10, flexWrap: "wrap", alignItems: "flex-end" }}>
+        {/* WRITE TAB */}
+        {tab === "write" && (<>
+          {/* The Review — Hero element */}
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+              <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 22, fontWeight: 400, color: "var(--text)", margin: 0 }}>Write a reply</h1>
+              {!isPro && <span style={{ fontSize: 11, color: canGen ? "var(--sage)" : "var(--terra)", fontWeight: 600 }}>{canGen ? `${FREE_LIMIT - used} free reply left` : "Free reply used"}</span>}
+            </div>
+            <textarea value={review} onChange={e => setReview(e.target.value)} placeholder="Paste the customer review here..." rows={4} style={{ width: "100%", padding: "16px 18px", borderRadius: 12, border: "1px solid var(--border)", background: "var(--card)", fontSize: 16, color: "var(--text)", fontFamily: "'DM Sans', sans-serif", outline: "none", boxSizing: "border-box", lineHeight: 1.6, resize: "vertical", transition: "border-color 0.15s" }} onFocus={e => e.target.style.borderColor = "var(--terra)"} onBlur={e => e.target.style.borderColor = "var(--border)"} />
+          </div>
+
+          {/* Controls — clean grid */}
+          <div style={{ background: "var(--card)", borderRadius: 12, border: "1px solid var(--border)", padding: 16, marginBottom: 16 }}>
+            {/* Row 1: Stars + Platform */}
+            <div style={{ display: "flex", gap: 16, marginBottom: 14, flexWrap: "wrap" }}>
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Rating</label>
-                <div style={{ display: "flex", gap: 3 }}>{[1,2,3,4,5].map(s => <button key={s} onClick={() => setStars(s)} style={{ width: 40, height: 40, borderRadius: 8, background: s <= stars ? "color-mix(in srgb, var(--star) 14%, var(--card))" : "var(--inputBg)", border: s <= stars ? "2px solid var(--star)" : "1px solid var(--border)", fontSize: 18, cursor: "pointer", color: s <= stars ? "var(--star)" : "var(--starOff)", transition: "all 0.12s, transform 0.1s", transform: s <= stars ? "scale(1.05)" : "scale(1)" }}>&#9733;</button>)}</div>
+                <div style={{ fontSize: 11, fontWeight: 500, color: "var(--light)", marginBottom: 5, letterSpacing: "0.5px" }}>RATING</div>
+                <div style={{ display: "flex", gap: 2 }}>{[1,2,3,4,5].map(n => (
+                  <button key={n} onClick={() => setStars(n)} style={{ width: 36, height: 36, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", border: n <= stars ? "2px solid var(--star)" : "1px solid var(--border)", background: n <= stars ? "color-mix(in srgb, var(--star) 10%, var(--card))" : "var(--inputBg)", cursor: "pointer", transition: "all 0.1s" }}>
+                    <span style={{ fontSize: 16, color: n <= stars ? "var(--star)" : "var(--starOff)", lineHeight: 1 }}>&#9733;</span>
+                  </button>
+                ))}</div>
               </div>
-              <div style={{ flex: 1 }}>
-                <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Platform</label>
-                <div style={{ display: "flex", gap: 3, flexWrap: "wrap" }}>{PLATFORMS.map(p => <Pill key={p} active={platform === p} onClick={() => setPlatform(p)}>{p}</Pill>)}</div>
+              <div style={{ flex: 1, minWidth: 200 }}>
+                <div style={{ fontSize: 11, fontWeight: 500, color: "var(--light)", marginBottom: 5, letterSpacing: "0.5px" }}>PLATFORM</div>
+                <div style={{ display: "flex", gap: 3, flexWrap: "wrap" }}>{PLATFORMS.map(p => (
+                  <button key={p} onClick={() => setPlatform(p)} style={{ padding: "5px 10px", borderRadius: 6, border: `1px solid ${platform === p ? "color-mix(in srgb, var(--terra) 40%, transparent)" : "var(--border)"}`, background: platform === p ? "color-mix(in srgb, var(--terra) 8%, transparent)" : "var(--inputBg)", fontSize: 12, fontWeight: platform === p ? 600 : 400, color: platform === p ? "var(--terra)" : "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "all 0.1s" }}>{p}</button>
+                ))}</div>
               </div>
             </div>
-            <div style={{ marginBottom: 10 }}>
-              <textarea value={review} onChange={e => setReview(e.target.value)} placeholder={`Paste the ${platform} review you want to reply to...`} rows={3} style={{ ...inp, fontSize: 14, lineHeight: 1.55, padding: "12px", borderRadius: 10, resize: "vertical" }} />
-            </div>
-            <div style={{ display: "flex", gap: 6, marginBottom: 10, flexWrap: "wrap", alignItems: "flex-end" }} className="stack-mobile">
-              <div style={{ flex: "1 1 120px" }}>
-                <label style={{ fontSize: 11, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 3 }}>Business type</label>
-                <select value={bizType} onChange={e => setBizType(e.target.value)} style={{ ...inp, cursor: "pointer", padding: "9px 10px" }}><option value="">Select...</option>{BIZ_TYPES.map(b => <option key={b}>{b}</option>)}</select>
+
+            {/* Row 2: Type + Language + Tone */}
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+              <div style={{ flex: "1 1 130px" }}>
+                <div style={{ fontSize: 11, fontWeight: 500, color: "var(--light)", marginBottom: 4, letterSpacing: "0.5px" }}>BUSINESS TYPE</div>
+                <select value={bizType} onChange={e => setBizType(e.target.value)} style={{ ...s.input, padding: "8px 10px", cursor: "pointer", fontSize: 13 }}><option value="">Select...</option>{BIZ_TYPES.map(b => <option key={b}>{b}</option>)}</select>
               </div>
-              <div style={{ flex: "1 1 120px" }}>
-                <label style={{ fontSize: 11, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 3 }}>Language {!isPro && <span style={{ color: "var(--light)" }}>Pro</span>}</label>
+              <div style={{ flex: "1 1 130px" }}>
+                <div style={{ fontSize: 11, fontWeight: 500, color: "var(--light)", marginBottom: 4, letterSpacing: "0.5px" }}>LANGUAGE {!isPro && <span style={{ color: "var(--terra)", fontSize: 9, fontWeight: 600 }}>PRO</span>}</div>
                 {isPro ? (
-                  <select value={respLang} onChange={e => setRespLang(e.target.value)} style={{ ...inp, cursor: "pointer", padding: "9px 10px" }}>{LANG_CODES.map(c => <option key={c} value={c}>{LANG_LABELS[c]}</option>)}</select>
+                  <select value={respLang} onChange={e => setRespLang(e.target.value)} style={{ ...s.input, padding: "8px 10px", cursor: "pointer", fontSize: 13 }}>{LANG_CODES.map(c => <option key={c} value={c}>{LANG_LABELS[c]}</option>)}</select>
                 ) : (
-                  <button onClick={() => setShowPricing(true)} style={{ ...inp, cursor: "pointer", textAlign: "left", color: "var(--light)", padding: "9px 10px" }}>English &middot; 7 more with Pro</button>
+                  <button onClick={() => setShowPricing(true)} style={{ ...s.input, padding: "8px 10px", cursor: "pointer", textAlign: "left", color: "var(--light)", fontSize: 13 }}>English</button>
                 )}
               </div>
-              <div style={{ flex: "1 1 auto" }}>
-                <label style={{ fontSize: 11, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 3 }}>Tone {!isPro && <span style={{ color: "var(--light)" }}>2/6</span>}</label>
-                <div style={{ display: "flex", gap: 3, flexWrap: "wrap" }}>{TONES.map(t => { const locked = !isPro && !t.free; return <Pill key={t.key} active={tone === t.key} locked={locked} onClick={() => locked ? setShowPricing(true) : setTone(t.key)}>{t.label}{locked ? " *" : ""}</Pill>; })}</div>
+            </div>
+            <div style={{ marginTop: 12 }}>
+              <div style={{ fontSize: 11, fontWeight: 500, color: "var(--light)", marginBottom: 4, letterSpacing: "0.5px" }}>TONE {!isPro && <span style={{ color: "var(--light)", fontSize: 9 }}>2 of 6</span>}</div>
+              <div style={{ display: "flex", gap: 3, flexWrap: "wrap" }}>{TONES.map(t => {
+                const locked = !isPro && !t.free;
+                return <button key={t.key} onClick={() => locked ? setShowPricing(true) : setTone(t.key)} style={{ padding: "5px 11px", borderRadius: 6, border: `1px solid ${tone === t.key ? "color-mix(in srgb, var(--terra) 40%, transparent)" : "var(--border)"}`, background: tone === t.key ? "color-mix(in srgb, var(--terra) 8%, transparent)" : "var(--inputBg)", fontSize: 12, fontWeight: tone === t.key ? 600 : 400, color: tone === t.key ? "var(--terra)" : locked ? "var(--light)" : "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "all 0.1s", opacity: locked ? 0.55 : 1 }}>{t.label}{locked ? " *" : ""}</button>;
+              })}</div>
+            </div>
+          </div>
+
+          {/* Generate Button */}
+          <button onClick={generate} disabled={!review.trim() || stars === 0 || loading} style={{ width: "100%", padding: "16px", borderRadius: 12, background: (!review.trim() || stars === 0) ? "var(--border)" : loading ? "var(--dim)" : "var(--terra)", border: "none", fontSize: 16, fontWeight: 700, cursor: (!review.trim() || stars === 0 || loading) ? "default" : "pointer", color: (!review.trim() || stars === 0) ? "var(--light)" : "#fff", fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s", letterSpacing: "-0.3px", marginBottom: 16 }}>
+            {loading ? "Writing your reply..." : !canGen ? "Upgrade to Pro for unlimited replies" : "Write My Reply"}
+          </button>
+
+          {/* Response */}
+          {response && (
+            <div style={{ background: "var(--card)", borderRadius: 12, border: "1px solid var(--border)", overflow: "hidden", marginBottom: 12 }}>
+              <div style={{ padding: "12px 18px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center", background: "color-mix(in srgb, var(--sage) 4%, var(--card))" }}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: "var(--sage)" }}>Your reply for {platform}</span>
+                <div style={{ display: "flex", gap: 6 }}>
+                  <button onClick={generate} style={{ padding: "4px 10px", borderRadius: 5, background: "var(--card)", border: "1px solid var(--border)", fontSize: 11, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Rewrite</button>
+                  <button onClick={() => { navigator.clipboard.writeText(response); setCopied(true); setTimeout(() => setCopied(false), 2000); }} style={{ padding: "4px 14px", borderRadius: 5, background: copied ? "var(--sage)" : "var(--text)", border: "none", fontSize: 11, fontWeight: 600, color: copied ? "#fff" : "var(--card)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "background 0.15s" }}>{copied ? "Copied" : "Copy"}</button>
+                </div>
+              </div>
+              <div style={{ padding: "18px 20px" }}>
+                <p style={{ fontSize: 15, lineHeight: 1.75, color: "var(--text)", margin: 0 }}>{response}</p>
               </div>
             </div>
-            {/* Brand Voice — compact */}
-            {isPro && brandVoice ? (
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px", background: "var(--inputBg)", borderRadius: 7, marginBottom: 10, fontSize: 11, color: "var(--dim)" }}>
-                <span>Replying as <strong style={{ color: "var(--text)" }}>{brandVoice.name}</strong>, signed by {brandVoice.signoff}</span>
-                <button onClick={() => { setBvName(brandVoice.name); setBvTone(brandVoice.tone); setBvSignoff(brandVoice.signoff); setBvType(brandVoice.type); setShowBrandVoice(true); }} style={{ background: "none", border: "none", fontSize: 10, color: "var(--terra)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Edit</button>
-              </div>
-            ) : isPro ? (
-              <button onClick={() => setShowBrandVoice(true)} style={{ width: "100%", padding: "7px", borderRadius: 7, background: "none", border: "1px dashed var(--border)", fontSize: 11, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", marginBottom: 10 }}>+ Save your brand voice for faster replies</button>
-            ) : (
-              <div onClick={() => setShowPricing(true)} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "7px 10px", borderRadius: 7, border: "1px dashed var(--border)", cursor: "pointer", marginBottom: 10 }}>
-                <span style={{ fontSize: 11, color: "var(--dim)" }}>Brand Voice — save your details for every reply <span style={{ color: "var(--light)" }}>Pro</span></span>
-                <span style={{ fontSize: 10, color: "var(--terra)", fontWeight: 600 }}>Upgrade</span>
-              </div>
-            )}
-            <button onClick={generate} disabled={!review.trim() || stars === 0 || loading} style={{ width: "100%", padding: "14px", borderRadius: 10, background: (!review.trim() || stars === 0) ? "var(--sandDk)" : loading ? "color-mix(in srgb, var(--terra) 70%, var(--sandDk))" : "var(--terra)", border: "none", fontSize: 15, fontWeight: 700, cursor: (!review.trim() || stars === 0 || loading) ? "not-allowed" : "pointer", color: (!review.trim() || stars === 0) ? "var(--light)" : "#fff", fontFamily: "'DM Sans', sans-serif", transition: "all 0.15s" }}>
-              {loading ? <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}><span style={{ width: 14, height: 14, border: "2px solid #fff4", borderTopColor: "#fff", borderRadius: "50%", animation: "spin .6s linear infinite", display: "inline-block" }} />Writing...</span> : !canGen ? "Limit reached — upgrade to Pro" : isPro ? "Write My Reply" : `Write My Reply${used > 0 ? ` (${FREE_LIMIT - used} left)` : ""}`}
-            </button>
-            {response && (
-              <div style={{ marginTop: 14, padding: "14px 16px", background: "color-mix(in srgb, var(--sage) 6%, var(--card))", borderRadius: 10, border: "1px solid color-mix(in srgb, var(--sage) 15%, transparent)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 4 }}>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: "var(--sage)" }}>Ready to post on {platform}</span>
-                  <button onClick={() => { navigator.clipboard.writeText(response); setCopied(true); setTimeout(() => setCopied(false), 2000); }} style={{ padding: "5px 14px", borderRadius: 6, background: copied ? "color-mix(in srgb, var(--sage) 8%, var(--card))" : "var(--card)", border: `1px solid ${copied ? "color-mix(in srgb, var(--sage) 25%, transparent)" : "var(--border)"}`, fontSize: 11, fontWeight: 600, color: copied ? "var(--sage)" : "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>{copied ? "Copied" : "Copy Reply"}</button>
-                </div>
-                <p style={{ fontSize: 14, lineHeight: 1.7, color: "var(--text)", margin: 0 }}>{response}</p>
-                <button onClick={generate} style={{ marginTop: 8, padding: "4px 10px", background: "var(--card)", border: "1px solid var(--border)", borderRadius: 6, fontSize: 11, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Try another</button>
-              </div>
-            )}
-            {/* Blurred Pro Preview */}
-            {response && !isPro && (
-              <div onClick={() => setShowPricing(true)} style={{ marginTop: 10, padding: "14px 16px", background: "color-mix(in srgb, var(--terra) 4%, var(--card))", borderRadius: 10, border: "1px dashed color-mix(in srgb, var(--terra) 25%, transparent)", cursor: "pointer", position: "relative", overflow: "hidden" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                  <span style={{ fontSize: 11, fontWeight: 600, color: "var(--terra)" }}>Pro version — more detailed, empathetic tone</span>
-                  <span style={{ fontSize: 10, padding: "2px 8px", background: "var(--terra)", color: "#fff", borderRadius: 4, fontWeight: 600 }}>PRO</span>
-                </div>
-                <div style={{ filter: "blur(5px)", userSelect: "none", pointerEvents: "none" }}>
-                  <p style={{ fontSize: 14, lineHeight: 1.7, color: "var(--dim)", margin: 0 }}>Thank you so much for taking the time to share your experience with us. We truly appreciate your honest feedback and want you to know that we take every comment seriously. Your satisfaction is our top priority, and we would love the opportunity to make things right. Please don't hesitate to reach out to us directly so we can address your concerns personally and ensure your next experience exceeds your expectations.</p>
-                </div>
-                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 50, background: "linear-gradient(transparent, var(--card))" }} />
-                <div style={{ textAlign: "center", marginTop: -8, position: "relative", zIndex: 1 }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: "var(--terra)" }}>Unlock Pro replies — $19/mo</span>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+          )}
 
-        {/* HISTORY TAB — LOCKED */}
+          {/* Blurred Pro Preview */}
+          {response && !isPro && (
+            <div onClick={() => setShowPricing(true)} style={{ background: "var(--card)", borderRadius: 12, border: "1px dashed color-mix(in srgb, var(--terra) 30%, transparent)", overflow: "hidden", cursor: "pointer", position: "relative", marginBottom: 12 }}>
+              <div style={{ padding: "10px 18px", borderBottom: "1px dashed color-mix(in srgb, var(--terra) 20%, transparent)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: "var(--terra)" }}>Pro alternative — empathetic, detailed</span>
+                <span style={{ fontSize: 9, padding: "2px 8px", background: "var(--terra)", color: "#fff", borderRadius: 4, fontWeight: 700, letterSpacing: "0.5px" }}>PRO</span>
+              </div>
+              <div style={{ padding: "18px 20px", filter: "blur(5px)", userSelect: "none" }}>
+                <p style={{ fontSize: 15, lineHeight: 1.75, color: "var(--dim)", margin: 0 }}>Thank you so much for taking the time to share your experience with us. We truly value your honest feedback and want you to know that we take every comment seriously. Your satisfaction is our top priority, and we would love the opportunity to make things right. Please don't hesitate to reach out directly so we can address your concerns and ensure your next visit exceeds expectations.</p>
+              </div>
+              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 60, background: "linear-gradient(transparent, var(--card))", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingBottom: 14 }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: "var(--terra)", background: "var(--card)", padding: "0 8px" }}>Unlock with Pro — $19/mo</span>
+              </div>
+            </div>
+          )}
+
+          {/* Brand Voice Nudge for free */}
+          {!isPro && !response && (
+            <div onClick={() => setShowPricing(true)} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 16px", background: "var(--card)", borderRadius: 10, border: "1px dashed var(--border)", cursor: "pointer" }}>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>Brand Voice</div>
+                <div style={{ fontSize: 11, color: "var(--light)", marginTop: 1 }}>Save your business details. Auto-fill every reply.</div>
+              </div>
+              <span style={{ fontSize: 10, fontWeight: 600, color: "var(--terra)", whiteSpace: "nowrap" }}>Pro feature</span>
+            </div>
+          )}
+        </>)}
+
+        {/* HISTORY TAB */}
         {tab === "history" && !isPro && (
-          <div style={{ textAlign: "center", padding: "56px 20px", background: "var(--card)", borderRadius: 12, border: "1px solid var(--border)" }}>
-            <div style={{ width: 48, height: 48, borderRadius: 12, background: "var(--inputBg)", border: "1px solid var(--border)", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 20, marginBottom: 16, color: "var(--dim)" }}>&#9911;</div>
-            <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 22, fontWeight: 400, color: "var(--text)", marginBottom: 8 }}>Reply history is a Pro feature</h2>
-            <p style={{ fontSize: 13, color: "var(--dim)", maxWidth: 320, margin: "0 auto 20px", lineHeight: 1.5 }}>Every reply you write is saved automatically. Search, copy, and reuse your best responses.</p>
+          <div style={{ textAlign: "center", padding: "60px 20px" }}>
+            <div style={{ width: 56, height: 56, borderRadius: 14, background: "var(--card)", border: "1px solid var(--border)", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 18 }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--dim)" strokeWidth="1.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            </div>
+            <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 24, fontWeight: 400, color: "var(--text)", marginBottom: 8 }}>Reply history</h2>
+            <p style={{ fontSize: 14, color: "var(--dim)", maxWidth: 320, margin: "0 auto 24px", lineHeight: 1.55 }}>Pro members get every reply saved. Search, copy, and reuse your best responses anytime.</p>
             <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
-              <a href={STRIPE_MONTHLY} target="_blank" rel="noopener" style={{ padding: "10px 24px", borderRadius: 8, background: "var(--terra)", fontSize: 13, fontWeight: 600, color: "#fff", textDecoration: "none" }}>Go Pro — $19/mo</a>
-              <button onClick={() => setShowVerify(true)} style={{ padding: "10px 20px", borderRadius: 8, background: "var(--card)", border: "1px solid var(--border)", fontSize: 13, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Already Pro? Verify</button>
+              <a href={STRIPE_MONTHLY} target="_blank" rel="noopener" style={{ padding: "11px 28px", borderRadius: 10, background: "var(--terra)", fontSize: 14, fontWeight: 600, color: "#fff", textDecoration: "none" }}>Go Pro — $19/mo</a>
+              <button onClick={() => setShowVerify(true)} style={{ padding: "11px 20px", borderRadius: 10, background: "var(--card)", border: "1px solid var(--border)", fontSize: 14, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Already Pro? Verify</button>
             </div>
           </div>
         )}
 
-        {/* HISTORY TAB — PRO */}
         {tab === "history" && isPro && (
           <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-              <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 18, fontWeight: 400, color: "var(--text)" }}>Reply History</h2>
-              {history.length > 0 && <button onClick={clearHist} style={{ padding: "4px 10px", background: "none", border: "1px solid var(--border)", borderRadius: 6, fontSize: 10, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Clear All</button>}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+              <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 22, fontWeight: 400, color: "var(--text)" }}>Reply history</h2>
+              {history.length > 0 && <button onClick={clearHist} style={{ padding: "4px 10px", background: "none", border: "1px solid var(--border)", borderRadius: 6, fontSize: 11, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Clear all</button>}
             </div>
             {history.length === 0 ? (
-              <div style={{ textAlign: "center", padding: 36, background: "var(--card)", borderRadius: 12, border: "1px solid var(--border)" }}>
-                <p style={{ color: "var(--dim)", fontSize: 13, marginBottom: 10 }}>Your replies will appear here automatically.</p>
-                <button onClick={() => setTab("generate")} style={{ padding: "8px 18px", background: "var(--terra)", border: "none", borderRadius: 7, fontSize: 12, fontWeight: 600, color: "#fff", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Write a Reply</button>
+              <div style={{ textAlign: "center", padding: 48, background: "var(--card)", borderRadius: 12, border: "1px solid var(--border)" }}>
+                <p style={{ color: "var(--dim)", fontSize: 14 }}>Replies will appear here as you write them.</p>
+                <button onClick={() => setTab("write")} style={{ marginTop: 12, padding: "10px 24px", background: "var(--terra)", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 600, color: "#fff", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Write a reply</button>
               </div>
             ) : history.map(h => (
-              <div key={h.id} style={{ background: "var(--card)", borderRadius: 10, border: "1px solid var(--border)", padding: "12px 14px", marginBottom: 6 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5, flexWrap: "wrap", gap: 4 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                    <div style={{ display: "flex", gap: 1 }}>{[1,2,3,4,5].map(s => <span key={s} style={{ fontSize: 10, color: s <= h.stars ? "var(--star)" : "var(--starOff)" }}>&#9733;</span>)}</div>
-                    <span style={{ fontSize: 10, padding: "1px 6px", background: "var(--sand)", borderRadius: 3, color: "var(--dim)", fontWeight: 500 }}>{h.platform}</span>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+              <div key={h.id} style={{ background: "var(--card)", borderRadius: 10, border: "1px solid var(--border)", marginBottom: 8, overflow: "hidden" }}>
+                <div style={{ padding: "10px 14px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center", background: "var(--inputBg)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <div style={{ display: "flex", gap: 1 }}>{[1,2,3,4,5].map(n => <span key={n} style={{ fontSize: 10, color: n <= h.stars ? "var(--star)" : "var(--starOff)" }}>&#9733;</span>)}</div>
+                    <span style={{ fontSize: 10, color: "var(--dim)", fontWeight: 500 }}>{h.platform}</span>
                     <span style={{ fontSize: 9, color: "var(--light)" }}>{h.time}</span>
-                    <button onClick={() => deleteHist(h.id)} style={{ background: "none", border: "none", fontSize: 13, color: "var(--light)", cursor: "pointer", padding: 0, lineHeight: 1 }}>&#215;</button>
+                  </div>
+                  <div style={{ display: "flex", gap: 4 }}>
+                    <button onClick={() => navigator.clipboard.writeText(h.response)} style={{ padding: "2px 8px", background: "var(--card)", border: "1px solid var(--border)", borderRadius: 4, fontSize: 10, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Copy</button>
+                    <button onClick={() => deleteHist(h.id)} style={{ background: "none", border: "none", fontSize: 12, color: "var(--light)", cursor: "pointer", padding: 0 }}>&#215;</button>
                   </div>
                 </div>
-                <p style={{ fontSize: 11, color: "var(--dim)", lineHeight: 1.4, fontStyle: "italic", marginBottom: 6, padding: "5px 8px", background: "var(--inputBg)", borderRadius: 6 }}>"{h.review}{h.review.length >= 200 ? "..." : ""}"</p>
-                <p style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.55, marginBottom: 5 }}>{h.response}</p>
-                <button onClick={() => navigator.clipboard.writeText(h.response)} style={{ padding: "3px 8px", background: "var(--card)", border: "1px solid var(--border)", borderRadius: 5, fontSize: 10, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Copy</button>
+                <div style={{ padding: "10px 14px", fontSize: 11, color: "var(--dim)", fontStyle: "italic", borderBottom: "1px solid var(--border)" }}>"{h.review}{h.review.length >= 200 ? "..." : ""}"</div>
+                <div style={{ padding: "12px 14px", fontSize: 13, color: "var(--text)", lineHeight: 1.6 }}>{h.response}</div>
               </div>
             ))}
           </div>
         )}
       </div>
 
-      {/* FOOTER */}
-      <footer style={{ padding: "14px 16px", borderTop: "1px solid var(--border)", background: "var(--card)", marginTop: "auto" }}>
-        <div style={{ maxWidth: 960, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 6 }}>
+      {/* ── FOOTER ── */}
+      <footer style={{ padding: "12px 16px", borderTop: "1px solid var(--border)" }}>
+        <div style={{ maxWidth: 800, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 6 }}>
           <span style={{ fontSize: 10, color: "var(--light)" }}>NoteBack 2026</span>
           <div style={{ display: "flex", gap: 12 }}>
-            <a href="/" style={{ fontSize: 10, color: "var(--dim)", textDecoration: "none" }}>Home</a>
-            <a href="mailto:support@noteback.co" style={{ fontSize: 10, color: "var(--dim)", textDecoration: "none" }}>Contact</a>
-            <a href="/privacy" style={{ fontSize: 10, color: "var(--dim)", textDecoration: "none" }}>Privacy</a>
-            <a href="/terms" style={{ fontSize: 10, color: "var(--dim)", textDecoration: "none" }}>Terms</a>
-            <a href={STRIPE_PORTAL} target="_blank" rel="noopener" style={{ fontSize: 10, color: "var(--dim)", textDecoration: "none" }}>Manage</a>
+            <a href="/" style={{ fontSize: 10, color: "var(--light)", textDecoration: "none" }}>Home</a>
+            <a href="mailto:support@noteback.co" style={{ fontSize: 10, color: "var(--light)", textDecoration: "none" }}>Support</a>
+            <a href="/privacy" style={{ fontSize: 10, color: "var(--light)", textDecoration: "none" }}>Privacy</a>
+            <a href="/terms" style={{ fontSize: 10, color: "var(--light)", textDecoration: "none" }}>Terms</a>
+            <a href={STRIPE_PORTAL} target="_blank" rel="noopener" style={{ fontSize: 10, color: "var(--light)", textDecoration: "none" }}>Billing</a>
+            {!isPro && <button onClick={() => setShowVerify(true)} style={{ background: "none", border: "none", fontSize: 10, color: "var(--light)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Verify Pro</button>}
             {isPro && <button onClick={logoutPro} style={{ background: "none", border: "none", fontSize: 10, color: "var(--light)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Logout</button>}
           </div>
         </div>
       </footer>
 
-      {/* BRAND VOICE MODAL */}
-      {showBrandVoice && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(28,25,23,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999, padding: 16 }} onClick={() => setShowBrandVoice(false)}>
+      {/* ── SETTINGS MODAL (Pro) ── */}
+      {showSettings && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(28,25,23,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999, padding: 16 }} onClick={() => setShowSettings(false)}>
           <div onClick={e => e.stopPropagation()} style={{ background: "var(--card)", borderRadius: 14, padding: 24, maxWidth: 400, width: "100%", border: "1px solid var(--border)" }}>
             <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 22, fontWeight: 400, color: "var(--text)", marginBottom: 4 }}>Brand Voice</h2>
-            <p style={{ fontSize: 13, color: "var(--dim)", marginBottom: 16, lineHeight: 1.5 }}>Save your business details. Every reply will use these automatically.</p>
-            <div style={{ marginBottom: 10 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Business name</label>
-              <input value={bvName} onChange={e => setBvName(e.target.value)} placeholder="e.g., ProFlow Plumbing" style={inp} />
-            </div>
-            <div style={{ marginBottom: 10 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Business type</label>
-              <select value={bvType} onChange={e => setBvType(e.target.value)} style={{ ...inp, cursor: "pointer" }}><option value="">Select...</option>{BIZ_TYPES.map(b => <option key={b}>{b}</option>)}</select>
-            </div>
-            <div style={{ marginBottom: 10 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Default tone</label>
-              <div style={{ display: "flex", gap: 3, flexWrap: "wrap" }}>{TONES.map(t => <Pill key={t.key} active={bvTone === t.key} onClick={() => setBvTone(t.key)}>{t.label}</Pill>)}</div>
-            </div>
-            <div style={{ marginBottom: 14 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Sign off as</label>
-              <input value={bvSignoff} onChange={e => setBvSignoff(e.target.value)} placeholder="e.g., Mike" style={inp} />
-            </div>
-            <button onClick={() => { const bv = { name: bvName, type: bvType, tone: bvTone, signoff: bvSignoff }; setBrandVoice(bv); setBizName(bv.name); setBizType(bv.type); setTone(bv.tone); setOwnerName(bv.signoff); setShowBrandVoice(false); try { localStorage.setItem("nb_brandvoice", JSON.stringify(bv)); } catch {} }} style={{ width: "100%", padding: 11, borderRadius: 8, background: "var(--terra)", border: "none", fontSize: 13, fontWeight: 600, color: "#fff", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Save Brand Voice</button>
-            {brandVoice && <button onClick={() => { setBrandVoice(null); setShowBrandVoice(false); try { localStorage.removeItem("nb_brandvoice"); } catch {} }} style={{ display: "block", margin: "8px auto 0", background: "none", border: "none", fontSize: 11, color: "var(--light)", cursor: "pointer" }}>Remove Brand Voice</button>}
-            <button onClick={() => setShowBrandVoice(false)} style={{ display: "block", margin: "6px auto 0", background: "none", border: "none", fontSize: 12, color: "var(--dim)", cursor: "pointer" }}>Cancel</button>
+            <p style={{ fontSize: 13, color: "var(--dim)", marginBottom: 16 }}>These details are included in every reply you generate.</p>
+            <div style={{ marginBottom: 10 }}><div style={{ fontSize: 11, fontWeight: 500, color: "var(--light)", marginBottom: 4 }}>BUSINESS NAME</div><input value={brandName} onChange={e => setBrandName(e.target.value)} placeholder="e.g., ProFlow Plumbing" style={s.input} /></div>
+            <div style={{ marginBottom: 10 }}><div style={{ fontSize: 11, fontWeight: 500, color: "var(--light)", marginBottom: 4 }}>BUSINESS TYPE</div><select value={bizType} onChange={e => setBizType(e.target.value)} style={{ ...s.input, cursor: "pointer" }}><option value="">Select...</option>{BIZ_TYPES.map(b => <option key={b}>{b}</option>)}</select></div>
+            <div style={{ marginBottom: 16 }}><div style={{ fontSize: 11, fontWeight: 500, color: "var(--light)", marginBottom: 4 }}>SIGN OFF AS</div><input value={brandSignoff} onChange={e => setBrandSignoff(e.target.value)} placeholder="e.g., Mike, Owner" style={s.input} /></div>
+            <button onClick={saveBrand} style={{ width: "100%", padding: 12, borderRadius: 8, background: "var(--terra)", border: "none", fontSize: 14, fontWeight: 600, color: "#fff", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Save</button>
+            <button onClick={() => setShowSettings(false)} style={{ display: "block", margin: "8px auto 0", background: "none", border: "none", fontSize: 12, color: "var(--dim)", cursor: "pointer" }}>Cancel</button>
           </div>
         </div>
       )}
 
-      {/* VERIFY MODAL */}
+      {/* ── VERIFY MODAL ── */}
       {showVerify && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(28,25,23,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999, padding: 16 }} onClick={() => setShowVerify(false)}>
           <div onClick={e => e.stopPropagation()} style={{ background: "var(--card)", borderRadius: 14, padding: 24, maxWidth: 380, width: "100%", border: "1px solid var(--border)" }}>
-            <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 22, fontWeight: 400, color: "var(--text)", marginBottom: 8 }}>Verify your subscription</h2>
-            <p style={{ fontSize: 13, color: "var(--dim)", marginBottom: 14, lineHeight: 1.5 }}>Enter the email address you used when you subscribed.</p>
-            <input value={verifyInput} onChange={e => setVerifyInput(e.target.value)} placeholder="you@email.com" onKeyDown={e => e.key === "Enter" && verifyPro()} style={{ ...inp, marginBottom: 8 }} />
-            {proError && <p style={{ fontSize: 12, color: "#B85C38", marginBottom: 8 }}>{proError}</p>}
-            <button onClick={verifyPro} disabled={proVerifying} style={{ width: "100%", padding: 11, borderRadius: 8, background: proVerifying ? "var(--sandDk)" : "var(--terra)", border: "none", fontSize: 13, fontWeight: 600, color: "#fff", cursor: proVerifying ? "wait" : "pointer", fontFamily: "'DM Sans', sans-serif" }}>{proVerifying ? "Checking..." : "Verify"}</button>
-            <button onClick={() => setShowVerify(false)} style={{ display: "block", margin: "10px auto 0", background: "none", border: "none", fontSize: 12, color: "var(--dim)", cursor: "pointer" }}>Cancel</button>
+            <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 22, fontWeight: 400, color: "var(--text)", marginBottom: 8 }}>Verify subscription</h2>
+            <p style={{ fontSize: 13, color: "var(--dim)", marginBottom: 14 }}>Enter the email you used on Stripe.</p>
+            <input value={verifyInput} onChange={e => setVerifyInput(e.target.value)} placeholder="you@email.com" onKeyDown={e => e.key === "Enter" && verifyPro()} style={{ ...s.input, marginBottom: 8 }} />
+            {proError && <p style={{ fontSize: 12, color: "var(--terra)", marginBottom: 8 }}>{proError}</p>}
+            <button onClick={verifyPro} disabled={proVerifying} style={{ width: "100%", padding: 12, borderRadius: 8, background: proVerifying ? "var(--dim)" : "var(--terra)", border: "none", fontSize: 14, fontWeight: 600, color: "#fff", cursor: proVerifying ? "wait" : "pointer", fontFamily: "'DM Sans', sans-serif" }}>{proVerifying ? "Checking..." : "Verify"}</button>
+            <button onClick={() => setShowVerify(false)} style={{ display: "block", margin: "8px auto 0", background: "none", border: "none", fontSize: 12, color: "var(--dim)", cursor: "pointer" }}>Cancel</button>
           </div>
         </div>
       )}
 
-      {/* PRICING MODAL */}
+      {/* ── PRICING MODAL ── */}
       {showPricing && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(28,25,23,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999, padding: 16 }} onClick={() => setShowPricing(false)}>
           <div onClick={e => e.stopPropagation()} style={{ background: "var(--card)", borderRadius: 14, padding: 24, maxWidth: 400, width: "100%", border: "1px solid var(--border)" }}>
             <div style={{ textAlign: "center", marginBottom: 18 }}>
-              <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 24, fontWeight: 400, color: "var(--text)", marginBottom: 6 }}>Upgrade to Pro</h2>
-              <p style={{ fontSize: 13, color: "var(--dim)" }}>Unlimited replies, all 6 tones, 8 languages, history.</p>
+              <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 26, fontWeight: 400, color: "var(--text)", marginBottom: 8 }}>Go Pro</h2>
+              <p style={{ fontSize: 13, color: "var(--dim)" }}>Unlimited replies. All 6 tones. 8 languages. Reply history. Brand voice.</p>
             </div>
             <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
-              {[{ name: "Monthly", price: "$19", sub: "/mo", note: "Cancel anytime", href: STRIPE_MONTHLY }, { name: "Yearly", price: "$149", sub: "/yr", note: "Save 35%", pop: true, href: STRIPE_YEARLY }].map(p => (
-                <a key={p.name} href={p.href} target="_blank" rel="noopener" style={{ flex: 1, padding: 14, borderRadius: 10, textAlign: "center", background: "var(--card)", border: `2px solid ${p.pop ? "var(--terra)" : "var(--border)"}`, position: "relative", textDecoration: "none" }}>
-                  {p.pop && <span style={{ position: "absolute", top: -8, left: "50%", transform: "translateX(-50%)", background: "var(--terra)", color: "#fff", fontSize: 8, fontWeight: 700, padding: "2px 8px", borderRadius: 99 }}>BEST VALUE</span>}
-                  <div style={{ fontSize: 11, fontWeight: 600, color: "var(--dim)", marginBottom: 2 }}>{p.name}</div>
-                  <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 26, color: "var(--text)" }}>{p.price}<span style={{ fontSize: 12, color: "var(--dim)", fontFamily: "'DM Sans', sans-serif" }}>{p.sub}</span></div>
-                  <div style={{ fontSize: 10, color: "var(--terra)", marginTop: 2 }}>{p.note}</div>
+              {[{ name: "Monthly", price: "$19", sub: "/mo", note: "Cancel anytime", href: STRIPE_MONTHLY },{ name: "Yearly", price: "$149", sub: "/yr", note: "Save 35%", pop: true, href: STRIPE_YEARLY }].map(p => (
+                <a key={p.name} href={p.href} target="_blank" rel="noopener" style={{ flex: 1, padding: 16, borderRadius: 12, textAlign: "center", background: "var(--card)", border: `2px solid ${p.pop ? "var(--terra)" : "var(--border)"}`, position: "relative", textDecoration: "none" }}>
+                  {p.pop && <span style={{ position: "absolute", top: -9, left: "50%", transform: "translateX(-50%)", background: "var(--terra)", color: "#fff", fontSize: 9, fontWeight: 700, padding: "2px 10px", borderRadius: 99 }}>BEST VALUE</span>}
+                  <div style={{ fontSize: 11, fontWeight: 600, color: "var(--dim)", marginBottom: 4 }}>{p.name}</div>
+                  <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 30, color: "var(--text)" }}>{p.price}<span style={{ fontSize: 13, color: "var(--dim)", fontFamily: "'DM Sans', sans-serif" }}>{p.sub}</span></div>
+                  <div style={{ fontSize: 10, color: "var(--terra)", marginTop: 4 }}>{p.note}</div>
                 </a>
               ))}
             </div>
-            <p style={{ textAlign: "center", fontSize: 10, color: "var(--light)", marginBottom: 8 }}>Secure checkout via Stripe.</p>
+            <p style={{ textAlign: "center", fontSize: 10, color: "var(--light)", marginBottom: 10 }}>Secure checkout via Stripe.</p>
             <div style={{ textAlign: "center", borderTop: "1px solid var(--border)", paddingTop: 10 }}>
               <button onClick={() => { setShowPricing(false); setShowVerify(true); }} style={{ background: "none", border: "none", fontSize: 12, color: "var(--terra)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Already subscribed? Verify here</button>
             </div>

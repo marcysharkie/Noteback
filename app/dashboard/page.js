@@ -123,7 +123,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-            <button onClick={toggleDark} style={{ width: 32, height: 32, borderRadius: 7, background: "var(--inputBg)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: 11, color: "var(--dim)", fontFamily: "'DM Sans', sans-serif", fontWeight: 500 }}>{dark ? "Lt" : "Dk"}</button>
+            <button onClick={toggleDark} style={{ width: 32, height: 32, borderRadius: 7, background: "var(--inputBg)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", overflow: "hidden" }}><div style={{ width: 14, height: 14, borderRadius: 7, background: dark ? "var(--star)" : "var(--dim)", transition: "background 0.2s" }} /></button>
             {isPro ? (
               <>
                 <span style={{ fontSize: 10, padding: "4px 10px", background: "color-mix(in srgb, var(--sage) 10%, transparent)", border: "1px solid color-mix(in srgb, var(--sage) 25%, transparent)", borderRadius: 6, color: "var(--sage)", fontWeight: 600, fontFamily: "'DM Sans', sans-serif" }}>PRO</span>
@@ -169,7 +169,7 @@ export default function Dashboard() {
                 <div style={{ fontSize: 9, color: "var(--light)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 2 }}>Total</div>
                 <div style={{ fontSize: 17, fontWeight: 700, color: "var(--text)", fontFamily: "'DM Serif Display', serif" }}>{totalGenerated}</div>
               </div>
-              <div onClick={() => setShowPricing(true)} style={{ flex: 1, padding: "10px 12px", background: "var(--card)", border: "1px solid var(--border)", borderRadius: 10, cursor: "pointer" }}>
+              <div onClick={() => setShowPricing(true)} style={{ flex: 1, padding: "10px 12px", background: "color-mix(in srgb, var(--terra) 4%, var(--card))", border: "1px solid color-mix(in srgb, var(--terra) 15%, transparent)", borderRadius: 10, cursor: "pointer", transition: "border-color 0.15s" }}>
                 <div style={{ fontSize: 9, color: "var(--light)", letterSpacing: "1px", textTransform: "uppercase", marginBottom: 2 }}>Pro</div>
                 <div style={{ fontSize: 14, fontWeight: 600, color: "var(--terra)" }}>Upgrade</div>
                 <div style={{ fontSize: 10, color: "var(--light)" }}>$19/mo</div>
@@ -183,7 +183,7 @@ export default function Dashboard() {
           <div style={{ background: "var(--card)", borderRadius: 12, border: "1px solid var(--border)", padding: "clamp(12px, 3vw, 20px)" }}>
             <div style={{ marginBottom: 10 }}>
               <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Star rating</label>
-              <div style={{ display: "flex", gap: 3 }}>{[1,2,3,4,5].map(s => <button key={s} onClick={() => setStars(s)} style={{ width: 36, height: 36, borderRadius: 7, background: s <= stars ? "color-mix(in srgb, var(--star) 12%, var(--card))" : "var(--inputBg)", border: s <= stars ? "2px solid var(--star)" : "1px solid var(--border)", fontSize: 16, cursor: "pointer", color: s <= stars ? "var(--star)" : "var(--starOff)", transition: "all 0.12s" }}>&#9733;</button>)}</div>
+              <div style={{ display: "flex", gap: 4 }}>{[1,2,3,4,5].map(s => <button key={s} onClick={() => setStars(s)} style={{ width: 42, height: 42, borderRadius: 9, background: s <= stars ? "color-mix(in srgb, var(--star) 14%, var(--card))" : "var(--inputBg)", border: s <= stars ? "2px solid var(--star)" : "1px solid var(--border)", fontSize: 19, cursor: "pointer", color: s <= stars ? "var(--star)" : "var(--starOff)", transition: "all 0.12s, transform 0.1s", transform: s <= stars ? "scale(1.05)" : "scale(1)" }}>&#9733;</button>)}</div>
             </div>
             <div style={{ marginBottom: 10 }}>
               <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Platform</label>
@@ -211,11 +211,14 @@ export default function Dashboard() {
               <label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Tone {!isPro && <span style={{ fontSize: 10, color: "var(--light)" }}>2 of 6 free</span>}</label>
               <div style={{ display: "flex", gap: 3, flexWrap: "wrap" }}>{TONES.map(t => { const locked = !isPro && !t.free; return <Pill key={t.key} active={tone === t.key} locked={locked} onClick={() => locked ? setShowPricing(true) : setTone(t.key)}>{t.label}{locked ? " *" : ""}</Pill>; })}</div>
             </div>
-            <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }} className="stack-mobile">
-              <div style={{ flex: "1 1 140px" }}><label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Business name <span style={{ fontWeight: 400, color: "var(--light)" }}>optional</span></label><input value={bizName} onChange={e => setBizName(e.target.value)} placeholder="e.g., ProFlow Plumbing" style={inp} /></div>
-              <div style={{ flex: "1 1 100px" }}><label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Sign off as <span style={{ fontWeight: 400, color: "var(--light)" }}>optional</span></label><input value={ownerName} onChange={e => setOwnerName(e.target.value)} placeholder="e.g., Mike" style={inp} /></div>
+            <div style={{ borderTop: "1px solid var(--border)", paddingTop: 10, marginTop: 4, marginBottom: 10 }}>
+              <label style={{ fontSize: 11, fontWeight: 500, color: "var(--light)", display: "block", marginBottom: 6, letterSpacing: "0.5px", textTransform: "uppercase" }}>Optional details</label>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }} className="stack-mobile">
+                <div style={{ flex: "1 1 140px" }}><label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Business name</label><input value={bizName} onChange={e => setBizName(e.target.value)} placeholder="e.g., ProFlow Plumbing" style={inp} /></div>
+                <div style={{ flex: "1 1 100px" }}><label style={{ fontSize: 12, fontWeight: 600, color: "var(--dim)", display: "block", marginBottom: 4 }}>Sign off as</label><input value={ownerName} onChange={e => setOwnerName(e.target.value)} placeholder="e.g., Mike" style={inp} /></div>
+              </div>
             </div>
-            <button onClick={generate} disabled={!review.trim() || stars === 0 || loading} style={{ width: "100%", padding: "12px", borderRadius: 10, background: (!review.trim() || stars === 0) ? "var(--sandDk)" : loading ? "var(--sandDk)" : "var(--terra)", border: "none", fontSize: 14, fontWeight: 600, cursor: (!review.trim() || stars === 0 || loading) ? "not-allowed" : "pointer", color: (!review.trim() || stars === 0) ? "var(--light)" : "#fff", fontFamily: "'DM Sans', sans-serif", transition: "all 0.15s" }}>
+            <button onClick={generate} disabled={!review.trim() || stars === 0 || loading} style={{ width: "100%", padding: "13px", borderRadius: 10, background: (!review.trim() || stars === 0) ? "var(--sandDk)" : loading ? "color-mix(in srgb, var(--terra) 70%, var(--sandDk))" : "var(--terra)", border: "none", fontSize: 15, fontWeight: 700, cursor: (!review.trim() || stars === 0 || loading) ? "not-allowed" : "pointer", color: (!review.trim() || stars === 0) ? "var(--light)" : "#fff", fontFamily: "'DM Sans', sans-serif", transition: "all 0.15s", letterSpacing: "-0.2px" }}>
               {loading ? <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}><span style={{ width: 14, height: 14, border: "2px solid #fff4", borderTopColor: "#fff", borderRadius: "50%", animation: "spin .6s linear infinite", display: "inline-block" }} />Writing...</span> : !canGen ? "Limit reached — upgrade to Pro" : isPro ? "Write My Reply" : `Write My Reply${used > 0 ? ` (${FREE_LIMIT - used} left)` : ""}`}
             </button>
             {response && (

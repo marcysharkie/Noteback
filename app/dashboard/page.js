@@ -225,25 +225,9 @@ export default function Dashboard() {
           {/* ═══ THE FORM ═══ */}
           <div ref={formRef}>
             {!demoVisible && (
-              <div style={{ marginBottom: 8 }}>
+              <div style={{ marginBottom: 12 }}>
                 <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "clamp(20px, 4vw, 26px)", fontWeight: 400, color: "var(--text)", margin: 0, lineHeight: 1.2 }}>Turn every review into <span style={{ color: "var(--terra)" }}>revenue</span></h1>
-                <p style={{ fontSize: 13, color: "var(--dim)", marginTop: 4 }}>AI-powered replies in 10 seconds. {!isPro && (canGen ? <span style={{ color: "var(--sage)", fontWeight: 600 }}>2 free replies.</span> : <span style={{ color: "var(--terra)", fontWeight: 600 }}>Free reply used.</span>)}</p>
-              </div>
-            )}
-
-            {/* ROI proof bar */}
-            {!demoVisible && (
-              <div style={{ display: "flex", gap: 0, marginBottom: 14, borderRadius: 8, overflow: "hidden", border: "1px solid var(--border)", background: "var(--card)" }}>
-                {[
-                  { n: "89%", d: "read owner replies" },
-                  { n: "+35%", d: "revenue with responses" },
-                  { n: "10s", d: "average reply time" },
-                ].map((s, i) => (
-                  <div key={i} style={{ flex: 1, padding: "10px 8px", textAlign: "center", borderRight: i < 2 ? "1px solid var(--border)" : "none" }}>
-                    <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 18, color: "var(--terra)", lineHeight: 1 }}>{s.n}</div>
-                    <div style={{ fontSize: 9, color: "var(--light)", marginTop: 3, lineHeight: 1.2 }}>{s.d}</div>
-                  </div>
-                ))}
+                <p style={{ fontSize: 13, color: "var(--dim)", marginTop: 4 }}>AI-powered replies in seconds. {!isPro && (canGen ? <span style={{ color: "var(--sage)", fontWeight: 600 }}>{FREE_LIMIT - used} free {FREE_LIMIT - used === 1 ? "reply" : "replies"} left today.</span> : <span style={{ color: "var(--terra)", fontWeight: 600 }}>Daily free replies used.</span>)}</p>
               </div>
             )}
 
@@ -316,46 +300,54 @@ export default function Dashboard() {
             <button onClick={generate} disabled={!review.trim() || stars === 0 || loading} style={{ width: "100%", padding: "16px", borderRadius: 12, background: (!review.trim() || stars === 0) ? "var(--border)" : loading ? "var(--dim)" : "var(--terra)", border: "none", fontSize: 16, fontWeight: 700, cursor: (!review.trim() || stars === 0 || loading) ? "default" : "pointer", color: (!review.trim() || stars === 0) ? "var(--light)" : "#fff", fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s", marginBottom: 6 }}>
               {loading ? "Writing your reply..." : !canGen ? "Upgrade to Pro for unlimited replies" : "Write My Reply"}
             </button>
-            {!isPro && (
-              <div style={{ textAlign: "center", marginBottom: 14 }}>
-                <div style={{ fontSize: 11, color: "var(--dim)", marginBottom: 2 }}>Most owners save 4+ hours/week on review management</div>
-                <span onClick={() => setShowPricing(true)} style={{ fontSize: 11, color: "var(--light)", cursor: "pointer" }}>Unlimited replies, all 6 tones, 8 languages — <span style={{ color: "var(--terra)", fontWeight: 600 }}>$19/mo</span></span>
+            {!isPro && !response && (
+              <div style={{ textAlign: "center", marginTop: 6, marginBottom: 10 }}>
+                <span style={{ fontSize: 11, color: "var(--light)" }}>Most owners save 4+ hours/week on review management</span>
               </div>
             )}
-            {isPro && <div style={{ marginBottom: 14 }} />}
+            {(isPro || response) && <div style={{ marginBottom: 10 }} />}
 
-            {/* Response */}
+            {/* Response — value first, upsell after */}
             {response && (
-              <div style={{ background: "var(--card)", borderRadius: 12, border: "1px solid var(--border)", overflow: "hidden", marginBottom: 12 }}>
-                <div style={{ padding: "12px 18px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center", background: "color-mix(in srgb, var(--sage) 4%, var(--card))" }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: "var(--sage)" }}>Your reply for {platform}</span>
-                  <div style={{ display: "flex", gap: 6 }}>
-                    <button onClick={generate} style={{ padding: "4px 10px", borderRadius: 5, background: "var(--card)", border: "1px solid var(--border)", fontSize: 11, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Rewrite</button>
-                    <button onClick={() => { navigator.clipboard.writeText(response); setCopied(true); setTimeout(() => setCopied(false), 2000); }} style={{ padding: "4px 14px", borderRadius: 5, background: copied ? "var(--sage)" : "var(--text)", border: "none", fontSize: 11, fontWeight: 600, color: copied ? "#fff" : "var(--card)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "background 0.15s" }}>{copied ? "Copied" : "Copy"}</button>
+              <>
+                <div style={{ background: "var(--card)", borderRadius: 12, border: "1px solid color-mix(in srgb, var(--sage) 20%, var(--border))", overflow: "hidden", marginBottom: 8 }}>
+                  <div style={{ padding: "10px 18px", borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center", background: "color-mix(in srgb, var(--sage) 4%, var(--card))" }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "var(--sage)" }}>Your reply for {platform}</span>
+                    {isPro && <button onClick={generate} style={{ padding: "4px 10px", borderRadius: 5, background: "var(--card)", border: "1px solid var(--border)", fontSize: 11, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Rewrite</button>}
+                  </div>
+                  <div style={{ padding: "18px 20px" }}>
+                    <p style={{ fontSize: 15, lineHeight: 1.75, color: "var(--text)", margin: 0 }}>{response}</p>
                   </div>
                 </div>
-                <div style={{ padding: "18px 20px" }}>
-                  <p style={{ fontSize: 15, lineHeight: 1.75, color: "var(--text)", margin: 0 }}>{response}</p>
-                </div>
-              </div>
+                {/* Big copy button */}
+                <button onClick={() => { navigator.clipboard.writeText(response); setCopied(true); setTimeout(() => setCopied(false), 2500); }} style={{ width: "100%", padding: "14px", borderRadius: 10, background: copied ? "var(--sage)" : "var(--text)", border: "none", fontSize: 15, fontWeight: 700, color: "var(--card)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "background 0.2s", marginBottom: 12, letterSpacing: "-0.2px" }}>
+                  {copied ? "Copied to clipboard" : "Copy reply to clipboard"}
+                </button>
+              </>
             )}
 
-            {/* Pro upsell — shows after free reply with tone alternatives */}
+            {/* Post-reply upsell — tone alternatives + upgrade */}
             {response && !isPro && (
-              <div onClick={() => setShowPricing(true)} style={{ background: "var(--card)", borderRadius: 12, border: "1px dashed color-mix(in srgb, var(--terra) 30%, transparent)", overflow: "hidden", cursor: "pointer", marginBottom: 12 }}>
+              <div style={{ background: "var(--card)", borderRadius: 12, border: "1px dashed color-mix(in srgb, var(--terra) 30%, transparent)", overflow: "hidden", marginBottom: 12 }}>
                 <div style={{ padding: "14px 18px" }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)", marginBottom: 6 }}>Want a different tone?</div>
-                  <div style={{ fontSize: 12, color: "var(--dim)", lineHeight: 1.5, marginBottom: 10 }}>Pro members can regenerate this reply in any of these tones:</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)", marginBottom: 4 }}>Not the right vibe?</div>
+                  <div style={{ fontSize: 12, color: "var(--dim)", lineHeight: 1.5, marginBottom: 10 }}>Unlock 4 more tones and regenerate in one click:</div>
                   <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 12 }}>
                     {TONES.filter(t => !t.free).map(t => (
-                      <span key={t.key} style={{ padding: "5px 12px", borderRadius: 6, border: "1px solid color-mix(in srgb, var(--terra) 20%, var(--border))", background: "color-mix(in srgb, var(--terra) 4%, var(--card))", fontSize: 12, color: "var(--terra)", fontWeight: 500 }}>{t.label}</span>
+                      <button key={t.key} onClick={() => setShowPricing(true)} style={{ padding: "6px 14px", borderRadius: 7, border: "1px solid color-mix(in srgb, var(--terra) 25%, var(--border))", background: "color-mix(in srgb, var(--terra) 5%, var(--card))", fontSize: 12, color: "var(--terra)", fontWeight: 500, cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "all 0.1s" }}>{t.label}</button>
                     ))}
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <span style={{ fontSize: 11, color: "var(--dim)" }}>Plus unlimited replies, 8 languages, reply history</span>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: "var(--terra)" }}>$19/mo</span>
-                  </div>
+                  <button onClick={() => setShowPricing(true)} style={{ width: "100%", padding: "11px", borderRadius: 8, background: "var(--terra)", border: "none", fontSize: 13, fontWeight: 600, color: "#fff", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Upgrade to Pro — $19/mo</button>
+                  <div style={{ textAlign: "center", marginTop: 6, fontSize: 11, color: "var(--light)" }}>Unlimited replies, 8 languages, reply history, brand voice</div>
                 </div>
+              </div>
+            )}
+
+            {/* Reply used banner */}
+            {response && !isPro && !canGen && (
+              <div style={{ padding: "12px 16px", background: "color-mix(in srgb, var(--terra) 5%, var(--card))", borderRadius: 10, border: "1px solid color-mix(in srgb, var(--terra) 15%, transparent)", marginBottom: 12, textAlign: "center" }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)" }}>You've used your {FREE_LIMIT} free {FREE_LIMIT === 1 ? "reply" : "replies"} for today</div>
+                <div style={{ fontSize: 12, color: "var(--dim)", marginTop: 2 }}>Come back tomorrow for {FREE_LIMIT} more, or <span onClick={() => setShowPricing(true)} style={{ color: "var(--terra)", fontWeight: 600, cursor: "pointer" }}>upgrade for unlimited</span></div>
               </div>
             )}
           </div>

@@ -225,23 +225,23 @@ export default function Dashboard() {
           {/* ═══ THE FORM ═══ */}
           <div ref={formRef}>
             {!demoVisible && (
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 22, fontWeight: 400, color: "var(--text)", margin: 0 }}>Write a reply</h1>
-                {!isPro && <span style={{ fontSize: 11, color: canGen ? "var(--sage)" : "var(--terra)", fontWeight: 600 }}>{canGen ? "1 free reply" : "Free reply used"}</span>}
+              <div style={{ marginBottom: 8 }}>
+                <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "clamp(20px, 4vw, 26px)", fontWeight: 400, color: "var(--text)", margin: 0, lineHeight: 1.2 }}>Turn every review into <span style={{ color: "var(--terra)" }}>revenue</span></h1>
+                <p style={{ fontSize: 13, color: "var(--dim)", marginTop: 4 }}>AI-powered replies in 10 seconds. {!isPro && (canGen ? <span style={{ color: "var(--sage)", fontWeight: 600 }}>1 free reply ready.</span> : <span style={{ color: "var(--terra)", fontWeight: 600 }}>Free reply used.</span>)}</p>
               </div>
             )}
 
-            {/* ROI stats — always visible, builds trust */}
+            {/* ROI proof bar */}
             {!demoVisible && (
-              <div style={{ display: "flex", gap: 0, marginBottom: 14, borderRadius: 8, overflow: "hidden", border: "1px solid var(--border)" }}>
+              <div style={{ display: "flex", gap: 0, marginBottom: 14, borderRadius: 8, overflow: "hidden", border: "1px solid var(--border)", background: "var(--card)" }}>
                 {[
-                  { n: "89%", d: "of customers read owner replies" },
-                  { n: "35%", d: "more revenue with responses" },
-                  { n: "24hr", d: "reply window matters most" },
+                  { n: "89%", d: "read owner replies" },
+                  { n: "+35%", d: "revenue with responses" },
+                  { n: "10s", d: "average reply time" },
                 ].map((s, i) => (
-                  <div key={i} style={{ flex: 1, padding: "10px 8px", textAlign: "center", background: "var(--card)", borderRight: i < 2 ? "1px solid var(--border)" : "none" }}>
-                    <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 16, color: "var(--terra)", lineHeight: 1 }}>{s.n}</div>
-                    <div style={{ fontSize: 9, color: "var(--light)", marginTop: 3, lineHeight: 1.3 }}>{s.d}</div>
+                  <div key={i} style={{ flex: 1, padding: "10px 8px", textAlign: "center", borderRight: i < 2 ? "1px solid var(--border)" : "none" }}>
+                    <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 18, color: "var(--terra)", lineHeight: 1 }}>{s.n}</div>
+                    <div style={{ fontSize: 9, color: "var(--light)", marginTop: 3, lineHeight: 1.2 }}>{s.d}</div>
                   </div>
                 ))}
               </div>
@@ -307,15 +307,9 @@ export default function Dashboard() {
               </div>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 500, color: "var(--light)", marginBottom: 6, letterSpacing: "0.5px" }}>TONE</div>
-                <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 6 }}>{TONES.filter(t => t.free).map(t => (
+                <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>{TONES.filter(t => isPro || t.free).map(t => (
                   <button key={t.key} onClick={() => setTone(t.key)} style={{ padding: "6px 14px", borderRadius: 7, border: `1.5px solid ${tone === t.key ? "var(--terra)" : "var(--border)"}`, background: tone === t.key ? "color-mix(in srgb, var(--terra) 10%, var(--card))" : "var(--inputBg)", fontSize: 12, fontWeight: tone === t.key ? 600 : 400, color: tone === t.key ? "var(--terra)" : "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "all 0.12s" }}>{t.label}</button>
                 ))}</div>
-                {!isPro && <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>{TONES.filter(t => !t.free).map(t => (
-                  <button key={t.key} onClick={() => setShowPricing(true)} style={{ padding: "6px 12px", borderRadius: 7, border: "1px dashed color-mix(in srgb, var(--terra) 30%, var(--border))", background: "color-mix(in srgb, var(--terra) 3%, var(--inputBg))", fontSize: 12, fontWeight: 400, color: "var(--light)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", display: "flex", alignItems: "center", gap: 5 }}>{t.label}<span style={{ fontSize: 8, fontWeight: 700, color: "var(--terra)", padding: "1px 5px", background: "color-mix(in srgb, var(--terra) 8%, transparent)", borderRadius: 3, letterSpacing: "0.5px" }}>PRO</span></button>
-                ))}</div>}
-                {isPro && <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>{TONES.filter(t => !t.free).map(t => (
-                  <button key={t.key} onClick={() => setTone(t.key)} style={{ padding: "6px 14px", borderRadius: 7, border: `1.5px solid ${tone === t.key ? "var(--terra)" : "var(--border)"}`, background: tone === t.key ? "color-mix(in srgb, var(--terra) 10%, var(--card))" : "var(--inputBg)", fontSize: 12, fontWeight: tone === t.key ? 600 : 400, color: tone === t.key ? "var(--terra)" : "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "all 0.12s" }}>{t.label}</button>
-                ))}</div>}
               </div>
             </div>
 
@@ -324,7 +318,8 @@ export default function Dashboard() {
             </button>
             {!isPro && (
               <div style={{ textAlign: "center", marginBottom: 14 }}>
-                <span onClick={() => setShowPricing(true)} style={{ fontSize: 11, color: "var(--light)", cursor: "pointer" }}>Pro: unlimited replies, all tones, 8 languages — <span style={{ color: "var(--terra)", fontWeight: 600 }}>$19/mo</span></span>
+                <div style={{ fontSize: 11, color: "var(--dim)", marginBottom: 2 }}>Most owners save 4+ hours/week on review management</div>
+                <span onClick={() => setShowPricing(true)} style={{ fontSize: 11, color: "var(--light)", cursor: "pointer" }}>Unlimited replies, all 6 tones, 8 languages — <span style={{ color: "var(--terra)", fontWeight: 600 }}>$19/mo</span></span>
               </div>
             )}
             {isPro && <div style={{ marginBottom: 14 }} />}
@@ -345,18 +340,21 @@ export default function Dashboard() {
               </div>
             )}
 
-            {/* Blurred Pro Preview */}
+            {/* Pro upsell — shows after free reply with tone alternatives */}
             {response && !isPro && (
-              <div onClick={() => setShowPricing(true)} style={{ background: "var(--card)", borderRadius: 12, border: "1px dashed color-mix(in srgb, var(--terra) 30%, transparent)", overflow: "hidden", cursor: "pointer", position: "relative", marginBottom: 12 }}>
-                <div style={{ padding: "10px 18px", borderBottom: "1px dashed color-mix(in srgb, var(--terra) 20%, transparent)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: "var(--terra)" }}>Pro alternative — empathetic, detailed</span>
-                  <span style={{ fontSize: 9, padding: "2px 8px", background: "var(--terra)", color: "#fff", borderRadius: 4, fontWeight: 700, letterSpacing: "0.5px" }}>PRO</span>
-                </div>
-                <div style={{ padding: "18px 20px", filter: "blur(5px)", userSelect: "none" }}>
-                  <p style={{ fontSize: 15, lineHeight: 1.75, color: "var(--dim)", margin: 0 }}>Thank you so much for taking the time to share your experience. We truly value your honest feedback and want you to know that we take every comment seriously. Your satisfaction is our top priority, and we would love the opportunity to make things right. Please don't hesitate to reach out directly so we can address your concerns personally.</p>
-                </div>
-                <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 60, background: "linear-gradient(transparent, var(--card))", display: "flex", alignItems: "flex-end", justifyContent: "center", paddingBottom: 14 }}>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: "var(--terra)", background: "var(--card)", padding: "0 8px" }}>Unlock with Pro — $19/mo</span>
+              <div onClick={() => setShowPricing(true)} style={{ background: "var(--card)", borderRadius: 12, border: "1px dashed color-mix(in srgb, var(--terra) 30%, transparent)", overflow: "hidden", cursor: "pointer", marginBottom: 12 }}>
+                <div style={{ padding: "14px 18px" }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)", marginBottom: 6 }}>Want a different tone?</div>
+                  <div style={{ fontSize: 12, color: "var(--dim)", lineHeight: 1.5, marginBottom: 10 }}>Pro members can regenerate this reply in any of these tones:</div>
+                  <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 12 }}>
+                    {TONES.filter(t => !t.free).map(t => (
+                      <span key={t.key} style={{ padding: "5px 12px", borderRadius: 6, border: "1px solid color-mix(in srgb, var(--terra) 20%, var(--border))", background: "color-mix(in srgb, var(--terra) 4%, var(--card))", fontSize: 12, color: "var(--terra)", fontWeight: 500 }}>{t.label}</span>
+                    ))}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span style={{ fontSize: 11, color: "var(--dim)" }}>Plus unlimited replies, 8 languages, reply history</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: "var(--terra)" }}>$19/mo</span>
+                  </div>
                 </div>
               </div>
             )}

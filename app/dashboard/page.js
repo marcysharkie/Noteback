@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 
-const FREE_LIMIT = 1;
+const FREE_LIMIT = 2;
 const BIZ_TYPES = ["Restaurant","Plumber","HVAC","Electrician","Dentist","Auto Repair","Salon / Barbershop","Med Spa","Cleaning Service","Roofing","Landscaping","Veterinarian","Real Estate","Law Office","Retail","Other"];
 const TONES = [
   { key: "warm", label: "Warm & Friendly", free: true },
@@ -227,7 +227,7 @@ export default function Dashboard() {
             {!demoVisible && (
               <div style={{ marginBottom: 8 }}>
                 <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "clamp(20px, 4vw, 26px)", fontWeight: 400, color: "var(--text)", margin: 0, lineHeight: 1.2 }}>Turn every review into <span style={{ color: "var(--terra)" }}>revenue</span></h1>
-                <p style={{ fontSize: 13, color: "var(--dim)", marginTop: 4 }}>AI-powered replies in 10 seconds. {!isPro && (canGen ? <span style={{ color: "var(--sage)", fontWeight: 600 }}>1 free reply ready.</span> : <span style={{ color: "var(--terra)", fontWeight: 600 }}>Free reply used.</span>)}</p>
+                <p style={{ fontSize: 13, color: "var(--dim)", marginTop: 4 }}>AI-powered replies in 10 seconds. {!isPro && (canGen ? <span style={{ color: "var(--sage)", fontWeight: 600 }}>2 free replies.</span> : <span style={{ color: "var(--terra)", fontWeight: 600 }}>Free reply used.</span>)}</p>
               </div>
             )}
 

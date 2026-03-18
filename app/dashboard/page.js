@@ -46,6 +46,7 @@ export default function Dashboard() {
   const [showVerify, setShowVerify] = useState(false);
   const [verifyInput, setVerifyInput] = useState("");
   const [showSettings, setShowSettings] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
   const [brandName, setBrandName] = useState("");
   const [brandSignoff, setBrandSignoff] = useState("");
   const [context, setContext] = useState("");
@@ -260,42 +261,54 @@ export default function Dashboard() {
               )}
             </div>
 
-            <div style={{ background: "var(--card)", borderRadius: 12, border: "1px solid var(--border)", padding: 16, marginBottom: 14 }}>
-              <div style={{ display: "flex", gap: 16, marginBottom: 14, flexWrap: "wrap" }}>
+            {/* Controls — collapsible for free, open for Pro */}
+            {(isPro || showOptions) ? (
+              <div style={{ background: "var(--card)", borderRadius: 12, border: "1px solid var(--border)", padding: 16, marginBottom: 14 }}>
+                {!isPro && <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}><span style={{ fontSize: 11, fontWeight: 500, color: "var(--light)" }}>CUSTOMIZE YOUR REPLY</span><button onClick={() => setShowOptions(false)} style={{ background: "none", border: "none", fontSize: 11, color: "var(--light)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Collapse</button></div>}
+                <div style={{ display: "flex", gap: 16, marginBottom: 14, flexWrap: "wrap" }}>
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 500, color: "var(--light)", marginBottom: 5, letterSpacing: "0.5px" }}>RATING</div>
+                    <div style={{ display: "flex", gap: 2 }}>{[1,2,3,4,5].map(n => (
+                      <button key={n} onClick={() => setStars(n)} style={{ width: 36, height: 36, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", border: n <= stars ? "2px solid var(--star)" : "1px solid var(--border)", background: n <= stars ? "color-mix(in srgb, var(--star) 10%, var(--card))" : "var(--inputBg)", cursor: "pointer", transition: "all 0.1s" }}><span style={{ fontSize: 16, color: n <= stars ? "var(--star)" : "var(--starOff)" }}>&#9733;</span></button>
+                    ))}</div>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 200 }}>
+                    <div style={{ fontSize: 11, fontWeight: 500, color: "var(--light)", marginBottom: 5, letterSpacing: "0.5px" }}>PLATFORM</div>
+                    <div style={{ display: "flex", gap: 3, flexWrap: "wrap" }}>{PLATFORMS.map(p => (
+                      <button key={p} onClick={() => setPlatform(p)} style={{ padding: "5px 10px", borderRadius: 6, border: `1px solid ${platform === p ? "color-mix(in srgb, var(--terra) 40%, transparent)" : "var(--border)"}`, background: platform === p ? "color-mix(in srgb, var(--terra) 8%, transparent)" : "var(--inputBg)", fontSize: 12, fontWeight: platform === p ? 600 : 400, color: platform === p ? "var(--terra)" : "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "all 0.1s" }}>{p}</button>
+                    ))}</div>
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 12, marginBottom: 12, flexWrap: "wrap" }}>
+                  <div style={{ flex: "1 1 130px" }}>
+                    <div style={{ fontSize: 11, fontWeight: 500, color: "var(--light)", marginBottom: 4, letterSpacing: "0.5px" }}>BUSINESS TYPE</div>
+                    <select value={bizType} onChange={e => setBizType(e.target.value)} style={{ ...inp, padding: "8px 10px", cursor: "pointer", fontSize: 13 }}><option value="">Select...</option>{BIZ_TYPES.map(b => <option key={b}>{b}</option>)}</select>
+                  </div>
+                  <div style={{ flex: "1 1 130px" }}>
+                    <div style={{ fontSize: 11, fontWeight: 500, color: "var(--light)", marginBottom: 4, letterSpacing: "0.5px" }}>LANGUAGE {!isPro && <span style={{ color: "var(--terra)", fontSize: 9, fontWeight: 600 }}>PRO</span>}</div>
+                    {isPro ? (
+                      <select value={respLang} onChange={e => setRespLang(e.target.value)} style={{ ...inp, padding: "8px 10px", cursor: "pointer", fontSize: 13 }}>{LANG_CODES.map(c => <option key={c} value={c}>{LANG_LABELS[c]}</option>)}</select>
+                    ) : (
+                      <button onClick={() => setShowPricing(true)} style={{ ...inp, padding: "8px 10px", cursor: "pointer", textAlign: "left", color: "var(--light)", fontSize: 13 }}>English</button>
+                    )}
+                  </div>
+                </div>
                 <div>
-                  <div style={{ fontSize: 11, fontWeight: 500, color: "var(--light)", marginBottom: 5, letterSpacing: "0.5px" }}>RATING</div>
-                  <div style={{ display: "flex", gap: 2 }}>{[1,2,3,4,5].map(n => (
-                    <button key={n} onClick={() => setStars(n)} style={{ width: 36, height: 36, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", border: n <= stars ? "2px solid var(--star)" : "1px solid var(--border)", background: n <= stars ? "color-mix(in srgb, var(--star) 10%, var(--card))" : "var(--inputBg)", cursor: "pointer", transition: "all 0.1s" }}><span style={{ fontSize: 16, color: n <= stars ? "var(--star)" : "var(--starOff)" }}>&#9733;</span></button>
-                  ))}</div>
-                </div>
-                <div style={{ flex: 1, minWidth: 200 }}>
-                  <div style={{ fontSize: 11, fontWeight: 500, color: "var(--light)", marginBottom: 5, letterSpacing: "0.5px" }}>PLATFORM</div>
-                  <div style={{ display: "flex", gap: 3, flexWrap: "wrap" }}>{PLATFORMS.map(p => (
-                    <button key={p} onClick={() => setPlatform(p)} style={{ padding: "5px 10px", borderRadius: 6, border: `1px solid ${platform === p ? "color-mix(in srgb, var(--terra) 40%, transparent)" : "var(--border)"}`, background: platform === p ? "color-mix(in srgb, var(--terra) 8%, transparent)" : "var(--inputBg)", fontSize: 12, fontWeight: platform === p ? 600 : 400, color: platform === p ? "var(--terra)" : "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "all 0.1s" }}>{p}</button>
+                  <div style={{ fontSize: 11, fontWeight: 500, color: "var(--light)", marginBottom: 6, letterSpacing: "0.5px" }}>TONE</div>
+                  <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>{TONES.filter(t => isPro || t.free).map(t => (
+                    <button key={t.key} onClick={() => setTone(t.key)} style={{ padding: "6px 14px", borderRadius: 7, border: `1.5px solid ${tone === t.key ? "var(--terra)" : "var(--border)"}`, background: tone === t.key ? "color-mix(in srgb, var(--terra) 10%, var(--card))" : "var(--inputBg)", fontSize: 12, fontWeight: tone === t.key ? 600 : 400, color: tone === t.key ? "var(--terra)" : "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "all 0.12s" }}>{t.label}</button>
                   ))}</div>
                 </div>
               </div>
-              <div style={{ display: "flex", gap: 12, marginBottom: 12, flexWrap: "wrap" }}>
-                <div style={{ flex: "1 1 130px" }}>
-                  <div style={{ fontSize: 11, fontWeight: 500, color: "var(--light)", marginBottom: 4, letterSpacing: "0.5px" }}>BUSINESS TYPE</div>
-                  <select value={bizType} onChange={e => setBizType(e.target.value)} style={{ ...inp, padding: "8px 10px", cursor: "pointer", fontSize: 13 }}><option value="">Select...</option>{BIZ_TYPES.map(b => <option key={b}>{b}</option>)}</select>
-                </div>
-                <div style={{ flex: "1 1 130px" }}>
-                  <div style={{ fontSize: 11, fontWeight: 500, color: "var(--light)", marginBottom: 4, letterSpacing: "0.5px" }}>LANGUAGE {!isPro && <span style={{ color: "var(--terra)", fontSize: 9, fontWeight: 600 }}>PRO</span>}</div>
-                  {isPro ? (
-                    <select value={respLang} onChange={e => setRespLang(e.target.value)} style={{ ...inp, padding: "8px 10px", cursor: "pointer", fontSize: 13 }}>{LANG_CODES.map(c => <option key={c} value={c}>{LANG_LABELS[c]}</option>)}</select>
-                  ) : (
-                    <button onClick={() => setShowPricing(true)} style={{ ...inp, padding: "8px 10px", cursor: "pointer", textAlign: "left", color: "var(--light)", fontSize: 13 }}>English</button>
-                  )}
-                </div>
-              </div>
-              <div>
-                <div style={{ fontSize: 11, fontWeight: 500, color: "var(--light)", marginBottom: 6, letterSpacing: "0.5px" }}>TONE</div>
-                <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>{TONES.filter(t => isPro || t.free).map(t => (
-                  <button key={t.key} onClick={() => setTone(t.key)} style={{ padding: "6px 14px", borderRadius: 7, border: `1.5px solid ${tone === t.key ? "var(--terra)" : "var(--border)"}`, background: tone === t.key ? "color-mix(in srgb, var(--terra) 10%, var(--card))" : "var(--inputBg)", fontSize: 12, fontWeight: tone === t.key ? 600 : 400, color: tone === t.key ? "var(--terra)" : "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "all 0.12s" }}>{t.label}</button>
+            ) : (
+              <div style={{ display: "flex", gap: 8, marginBottom: 14, alignItems: "center" }}>
+                <div style={{ display: "flex", gap: 1 }}>{[1,2,3,4,5].map(n => (
+                  <button key={n} onClick={() => setStars(n)} style={{ width: 30, height: 30, borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center", border: n <= stars ? "2px solid var(--star)" : "1px solid var(--border)", background: n <= stars ? "color-mix(in srgb, var(--star) 10%, var(--card))" : "var(--inputBg)", cursor: "pointer" }}><span style={{ fontSize: 14, color: n <= stars ? "var(--star)" : "var(--starOff)" }}>&#9733;</span></button>
                 ))}</div>
+                <span style={{ fontSize: 12, color: "var(--dim)", padding: "5px 10px", borderRadius: 6, background: "var(--inputBg)", border: "1px solid var(--border)" }}>{platform}</span>
+                <button onClick={() => setShowOptions(true)} style={{ marginLeft: "auto", padding: "5px 12px", borderRadius: 6, background: "var(--inputBg)", border: "1px solid var(--border)", fontSize: 11, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Options</button>
               </div>
-            </div>
+            )}
 
             <button onClick={generate} disabled={!review.trim() || stars === 0 || loading} style={{ width: "100%", padding: "16px", borderRadius: 12, background: (!review.trim() || stars === 0) ? "var(--border)" : loading ? "var(--dim)" : "var(--terra)", border: "none", fontSize: 16, fontWeight: 700, cursor: (!review.trim() || stars === 0 || loading) ? "default" : "pointer", color: (!review.trim() || stars === 0) ? "var(--light)" : "#fff", fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s", marginBottom: 6 }}>
               {loading ? "Writing your reply..." : !canGen ? "Upgrade to Pro for unlimited replies" : "Write My Reply"}
@@ -319,10 +332,18 @@ export default function Dashboard() {
                     <p style={{ fontSize: 15, lineHeight: 1.75, color: "var(--text)", margin: 0 }}>{response}</p>
                   </div>
                 </div>
-                {/* Big copy button */}
-                <button onClick={() => { navigator.clipboard.writeText(response); setCopied(true); setTimeout(() => setCopied(false), 2500); }} style={{ width: "100%", padding: "14px", borderRadius: 10, background: copied ? "var(--sage)" : "var(--text)", border: "none", fontSize: 15, fontWeight: 700, color: "var(--card)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "background 0.2s", marginBottom: 12, letterSpacing: "-0.2px" }}>
+                {/* Big copy button with post-copy nudge */}
+                <button onClick={() => { navigator.clipboard.writeText(response); setCopied(true); setTimeout(() => setCopied(false), 4000); }} style={{ width: "100%", padding: "14px", borderRadius: 10, background: copied ? "var(--sage)" : "var(--text)", border: "none", fontSize: 15, fontWeight: 700, color: "var(--card)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "background 0.2s", marginBottom: 4, letterSpacing: "-0.2px" }}>
                   {copied ? "Copied to clipboard" : "Copy reply to clipboard"}
                 </button>
+                {copied && !isPro && (
+                  <div style={{ textAlign: "center", padding: "8px 0", marginBottom: 4 }}>
+                    <span style={{ fontSize: 12, color: "var(--dim)" }}>Reply copied. </span>
+                    <span onClick={() => setShowPricing(true)} style={{ fontSize: 12, color: "var(--terra)", fontWeight: 600, cursor: "pointer" }}>Want unlimited? Go Pro — $19/mo</span>
+                  </div>
+                )}
+                {!copied && <div style={{ marginBottom: 8 }} />}
+                {!isPro && response && <div style={{ textAlign: "center", marginBottom: 8, fontSize: 11, color: "var(--light)" }}>Pro tip: edit the [phone/email] and sign-off name before posting</div>}
               </>
             )}
 

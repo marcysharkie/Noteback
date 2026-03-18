@@ -140,8 +140,8 @@ export default function Home() {
           </R>
           {[
             { n: "01", t: "Paste the review", d: "Copy a customer review from Google, Yelp, Facebook, or any platform. Select the star rating and your business type." },
-            { n: "02", t: "Get your reply", d: "NoteBack writes a professional reply in your voice — tailored to the review, the platform, and your preferred tone and language." },
-            { n: "03", t: "Copy and post", d: "One click to copy. Paste it as your owner response. Your customer gets a thoughtful, professional reply." },
+            { n: "02", t: "Add context if needed", d: "Optionally add background only you know — like \"customer already got a refund\" or \"we fixed the issue last week.\" This makes your reply smarter without revealing private details." },
+            { n: "03", t: "Get your reply in seconds", d: "NoteBack writes a professional reply in your voice — tailored to the review, the platform, and your preferred tone. One click to copy and post." },
           ].map((s, i) => (
             <R key={i} d={i * 0.08}>
               <div style={{ display: "flex", gap: 16, padding: "18px 0", borderBottom: i < 2 ? "1px solid var(--border)" : "none" }}>
@@ -153,6 +153,36 @@ export default function Home() {
               </div>
             </R>
           ))}
+        </section>
+
+        {/* WHY IT MATTERS */}
+        <section style={{ padding: "48px 24px", maxWidth: 800, margin: "0 auto" }}>
+          <R>
+            <div style={{ marginBottom: 28 }}>
+              <div style={{ fontSize: 11, fontWeight: 600, color: "var(--terra)", letterSpacing: "2px", textTransform: "uppercase", marginBottom: 8 }}>Why it matters</div>
+              <h2 style={{ fontFamily: "'DM Serif Display', serif", fontSize: "clamp(24px, 3.5vw, 32px)", fontWeight: 400, color: "var(--text)", letterSpacing: "-0.5px" }}>Ignoring reviews is costing you customers</h2>
+            </div>
+          </R>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12 }}>
+            {[
+              { stat: "89%", desc: "of consumers read business owner responses to reviews before making a purchase decision." },
+              { stat: "35%", desc: "more revenue reported by businesses that consistently respond to their customer reviews." },
+              { stat: "24hrs", desc: "is the window that matters most. Customers expect a reply within a day or they move on." },
+              { stat: "53%", desc: "of customers expect a business to respond to negative reviews within a week." },
+            ].map((s, i) => (
+              <R key={i} d={i * 0.06}>
+                <div style={{ padding: 20, background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12 }}>
+                  <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 32, color: "var(--terra)", marginBottom: 6 }}>{s.stat}</div>
+                  <div style={{ fontSize: 13, color: "var(--dim)", lineHeight: 1.5 }}>{s.desc}</div>
+                </div>
+              </R>
+            ))}
+          </div>
+          <R d={0.2}>
+            <div style={{ textAlign: "center", marginTop: 20 }}>
+              <a href="/dashboard" style={{ display: "inline-block", padding: "12px 28px", background: "var(--terra)", borderRadius: 10, fontSize: 14, fontWeight: 600, color: "#fff", textDecoration: "none" }}>Start replying now</a>
+            </div>
+          </R>
         </section>
 
         {/* WHAT'S INCLUDED */}
@@ -175,11 +205,12 @@ export default function Home() {
                 { f: "Review platforms", free: "All 8+", pro: "All 8+" },
                 { f: "Tone styles", free: "2", pro: "All 6" },
                 { f: "Languages", free: "English only", pro: "All 8" },
+                { f: "Add context", free: "Yes", pro: "Yes" },
+                { f: "Brand voice", free: "--", pro: "Saved" },
                 { f: "Reply history", free: "--", pro: "Saved" },
                 { f: "Priority speed", free: "--", pro: "Yes" },
-                { f: "Email support", free: "--", pro: "Yes" },
               ].map((r, i) => (
-                <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", borderBottom: i < 6 ? "1px solid var(--border)" : "none", background: "var(--card)" }}>
+                <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", borderBottom: i < 7 ? "1px solid var(--border)" : "none", background: "var(--card)" }}>
                   <div style={{ padding: "12px 18px", fontSize: 13, color: "var(--text)" }}>{r.f}</div>
                   <div style={{ padding: "12px 18px", fontSize: 13, color: "var(--dim)", textAlign: "center" }}>{r.free}</div>
                   <div style={{ padding: "12px 18px", fontSize: 13, color: "var(--text)", fontWeight: 500, textAlign: "center" }}>{r.pro}</div>
@@ -203,7 +234,7 @@ export default function Home() {
                 <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text)", marginBottom: 4 }}>Free</div>
                 <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 36, color: "var(--text)" }}>$0</div>
                 <div style={{ fontSize: 13, color: "var(--dim)", marginBottom: 18 }}>Forever</div>
-                {["1 reply per day", "2 tones", "English only", "All platforms", "Instant copy"].map(f => <div key={f} style={{ fontSize: 13, color: "var(--dim)", marginBottom: 6, paddingLeft: 16, position: "relative" }}><span style={{ position: "absolute", left: 0, color: "var(--sage)" }}>+</span>{f}</div>)}
+                {["1 reply per day", "2 tones", "English only", "Add context", "All platforms"].map(f => <div key={f} style={{ fontSize: 13, color: "var(--dim)", marginBottom: 6, paddingLeft: 16, position: "relative" }}><span style={{ position: "absolute", left: 0, color: "var(--sage)" }}>+</span>{f}</div>)}
                 <a href="/dashboard" style={{ display: "block", textAlign: "center", marginTop: 16, padding: 12, borderRadius: 10, border: "1px solid var(--border)", fontSize: 14, fontWeight: 600, color: "var(--text)", textDecoration: "none" }}>Start Free</a>
               </div>
             </R>
@@ -213,7 +244,7 @@ export default function Home() {
                 <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text)", marginBottom: 4 }}>Pro Monthly</div>
                 <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 36, color: "var(--text)" }}>$19<span style={{ fontSize: 14, fontWeight: 400, color: "var(--dim)", fontFamily: "'DM Sans', sans-serif" }}>/mo</span></div>
                 <div style={{ fontSize: 13, color: "var(--terra)", marginBottom: 18 }}>Cancel anytime</div>
-                {["Unlimited replies", "All 6 tones", "All 8 languages", "Reply history", "Priority speed", "Email support"].map(f => <div key={f} style={{ fontSize: 13, color: "var(--text)", marginBottom: 6, paddingLeft: 16, position: "relative" }}><span style={{ position: "absolute", left: 0, color: "var(--sage)" }}>+</span>{f}</div>)}
+                {["Unlimited replies", "All 6 tones", "All 8 languages", "Brand voice", "Reply history", "Add context", "Priority speed"].map(f => <div key={f} style={{ fontSize: 13, color: "var(--text)", marginBottom: 6, paddingLeft: 16, position: "relative" }}><span style={{ position: "absolute", left: 0, color: "var(--sage)" }}>+</span>{f}</div>)}
                 <a href={STRIPE_MONTHLY} target="_blank" rel="noopener" style={{ display: "block", textAlign: "center", marginTop: 16, padding: 12, borderRadius: 10, background: "var(--terra)", fontSize: 14, fontWeight: 600, color: "#fff", textDecoration: "none" }}>Get Pro</a>
               </div>
             </R>

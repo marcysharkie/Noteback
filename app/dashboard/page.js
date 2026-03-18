@@ -48,6 +48,8 @@ export default function Dashboard() {
   const [showSettings, setShowSettings] = useState(false);
   const [brandName, setBrandName] = useState("");
   const [brandSignoff, setBrandSignoff] = useState("");
+  const [context, setContext] = useState("");
+  const [showContext, setShowContext] = useState(false);
   // Demo animation
   const [demoVisible, setDemoVisible] = useState(true);
   const [demoTyped, setDemoTyped] = useState("");
@@ -126,7 +128,7 @@ export default function Dashboard() {
     try {
       const res = await fetch("/api/generate", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ review, stars, platform, bizType, bizName: brandName, ownerName: brandSignoff, tone: TONES.find(t => t.key === tone)?.label || tone, language: LANG_API[respLang] || "English", proEmail: isPro ? proEmail : null }),
+        body: JSON.stringify({ review, stars, platform, bizType, bizName: brandName, ownerName: brandSignoff, tone: TONES.find(t => t.key === tone)?.label || tone, language: LANG_API[respLang] || "English", proEmail: isPro ? proEmail : null, context: context || undefined }),
       });
       const data = await res.json();
       if (data.error) { if (res.status === 429) { setShowPricing(true); setLoading(false); return; } setResponse(data.error); }
@@ -223,9 +225,25 @@ export default function Dashboard() {
           {/* ═══ THE FORM ═══ */}
           <div ref={formRef}>
             {!demoVisible && (
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
                 <h1 style={{ fontFamily: "'DM Serif Display', serif", fontSize: 22, fontWeight: 400, color: "var(--text)", margin: 0 }}>Write a reply</h1>
                 {!isPro && <span style={{ fontSize: 11, color: canGen ? "var(--sage)" : "var(--terra)", fontWeight: 600 }}>{canGen ? "1 free reply" : "Free reply used"}</span>}
+              </div>
+            )}
+
+            {/* ROI stats — always visible, builds trust */}
+            {!demoVisible && (
+              <div style={{ display: "flex", gap: 0, marginBottom: 14, borderRadius: 8, overflow: "hidden", border: "1px solid var(--border)" }}>
+                {[
+                  { n: "89%", d: "of customers read owner replies" },
+                  { n: "35%", d: "more revenue with responses" },
+                  { n: "24hr", d: "reply window matters most" },
+                ].map((s, i) => (
+                  <div key={i} style={{ flex: 1, padding: "10px 8px", textAlign: "center", background: "var(--card)", borderRight: i < 2 ? "1px solid var(--border)" : "none" }}>
+                    <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 16, color: "var(--terra)", lineHeight: 1 }}>{s.n}</div>
+                    <div style={{ fontSize: 9, color: "var(--light)", marginTop: 3, lineHeight: 1.3 }}>{s.d}</div>
+                  </div>
+                ))}
               </div>
             )}
 
@@ -245,6 +263,17 @@ export default function Dashboard() {
 
             <div style={{ marginBottom: 14 }}>
               <textarea value={review} onChange={e => setReview(e.target.value)} placeholder="Paste the customer review here..." rows={4} style={{ width: "100%", padding: "16px 18px", borderRadius: 12, border: "1px solid var(--border)", background: "var(--card)", fontSize: 16, color: "var(--text)", fontFamily: "'DM Sans', sans-serif", outline: "none", boxSizing: "border-box", lineHeight: 1.6, resize: "vertical", transition: "border-color 0.15s" }} onFocus={e => e.target.style.borderColor = "var(--terra)"} onBlur={e => e.target.style.borderColor = "var(--border)"} />
+              {!showContext ? (
+                <button onClick={() => setShowContext(true)} style={{ marginTop: 6, background: "none", border: "none", fontSize: 12, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", padding: 0 }}>+ Add context <span style={{ color: "var(--light)" }}>— background info only you know</span></button>
+              ) : (
+                <div style={{ marginTop: 6 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                    <span style={{ fontSize: 11, fontWeight: 500, color: "var(--dim)" }}>Context <span style={{ color: "var(--light)", fontWeight: 400 }}>— not included in the reply, just informs the tone</span></span>
+                    <button onClick={() => { setShowContext(false); setContext(""); }} style={{ background: "none", border: "none", fontSize: 11, color: "var(--light)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Remove</button>
+                  </div>
+                  <textarea value={context} onChange={e => setContext(e.target.value)} placeholder="e.g., Customer already received a full refund. We were short-staffed that week." rows={2} style={{ width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--border)", background: "var(--inputBg)", fontSize: 13, color: "var(--text)", fontFamily: "'DM Sans', sans-serif", outline: "none", boxSizing: "border-box", lineHeight: 1.5, resize: "vertical" }} />
+                </div>
+              )}
             </div>
 
             <div style={{ background: "var(--card)", borderRadius: 12, border: "1px solid var(--border)", padding: 16, marginBottom: 14 }}>
@@ -290,9 +319,15 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <button onClick={generate} disabled={!review.trim() || stars === 0 || loading} style={{ width: "100%", padding: "16px", borderRadius: 12, background: (!review.trim() || stars === 0) ? "var(--border)" : loading ? "var(--dim)" : "var(--terra)", border: "none", fontSize: 16, fontWeight: 700, cursor: (!review.trim() || stars === 0 || loading) ? "default" : "pointer", color: (!review.trim() || stars === 0) ? "var(--light)" : "#fff", fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s", marginBottom: 14 }}>
+            <button onClick={generate} disabled={!review.trim() || stars === 0 || loading} style={{ width: "100%", padding: "16px", borderRadius: 12, background: (!review.trim() || stars === 0) ? "var(--border)" : loading ? "var(--dim)" : "var(--terra)", border: "none", fontSize: 16, fontWeight: 700, cursor: (!review.trim() || stars === 0 || loading) ? "default" : "pointer", color: (!review.trim() || stars === 0) ? "var(--light)" : "#fff", fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s", marginBottom: 6 }}>
               {loading ? "Writing your reply..." : !canGen ? "Upgrade to Pro for unlimited replies" : "Write My Reply"}
             </button>
+            {!isPro && (
+              <div style={{ textAlign: "center", marginBottom: 14 }}>
+                <span onClick={() => setShowPricing(true)} style={{ fontSize: 11, color: "var(--light)", cursor: "pointer" }}>Pro: unlimited replies, all tones, 8 languages — <span style={{ color: "var(--terra)", fontWeight: 600 }}>$19/mo</span></span>
+              </div>
+            )}
+            {isPro && <div style={{ marginBottom: 14 }} />}
 
             {/* Response */}
             {response && (

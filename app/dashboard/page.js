@@ -186,7 +186,11 @@ export default function Dashboard() {
           </div>
           <div style={{ display: "flex", gap: 5, alignItems: "center" }}>
             <button onClick={toggleDark} style={{ width: 30, height: 30, borderRadius: 6, background: "var(--inputBg)", border: "1px solid var(--border)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}><div style={{ width: 10, height: 10, borderRadius: 5, background: dark ? "var(--star)" : "var(--dim)" }} /></button>
-            {isPro && <button onClick={() => setShowSettings(true)} style={{ padding: "4px 10px", borderRadius: 6, border: "1px solid var(--border)", background: "var(--inputBg)", fontSize: 11, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Settings</button>}
+            {isPro ? (
+              <button onClick={() => setShowSettings(true)} style={{ padding: "4px 10px", borderRadius: 6, border: "1px solid var(--border)", background: "var(--inputBg)", fontSize: 11, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Brand Voice</button>
+            ) : (
+              <button onClick={() => setShowPricing(true)} style={{ padding: "4px 10px", borderRadius: 6, border: "1px dashed color-mix(in srgb, var(--terra) 25%, var(--border))", background: "var(--inputBg)", fontSize: 11, color: "var(--light)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}>Brand Voice</button>
+            )}
             {isPro ? (
               <span style={{ fontSize: 10, padding: "4px 10px", background: "color-mix(in srgb, var(--sage) 10%, transparent)", border: "1px solid color-mix(in srgb, var(--sage) 20%, transparent)", borderRadius: 6, color: "var(--sage)", fontWeight: 600 }}>PRO</span>
             ) : (

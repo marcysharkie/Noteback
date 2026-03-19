@@ -122,6 +122,27 @@ export default function Dashboard() {
   const logoutPro = () => { setIsPro(false); setProEmail(""); setProPlan(""); setHistory([]); try { localStorage.removeItem("nb_pro"); localStorage.removeItem("nb_history"); } catch {} };
   const saveBrand = () => { try { localStorage.setItem("nb_brand", JSON.stringify({ name: brandName, signoff: brandSignoff, type: bizType })); } catch {} setShowSettings(false); };
 
+  const tryExample = (ex) => {
+    setReview(ex.text); setStars(ex.stars); setBizType(ex.biz); setPlatform("Google"); setDemoVisible(false);
+    if (!canGen) { setShowPricing(true); return; }
+    setLoading(true); setResponse("");
+    setTimeout(() => {
+      fetch("/api/generate", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ review: ex.text, stars: ex.stars, platform: "Google", bizType: ex.biz, bizName: brandName, ownerName: brandSignoff, tone: "Warm & Friendly", language: "English", proEmail: isPro ? proEmail : null }),
+      }).then(r => r.json()).then(data => {
+        if (data.response) {
+          setResponse(data.response);
+          if (!isPro) { const nc = used + 1; setUsed(nc); try { const td = new Date().toISOString().split("T")[0]; localStorage.setItem("nb_usage", JSON.stringify({ date: td, count: nc })); } catch {} }
+          const nt = totalGenerated + 1; setTotalGenerated(nt);
+          if (isPro) { const entry = { review: ex.text.slice(0, 200), stars: ex.stars, platform: "Google", bizType: ex.biz, response: data.response, language: "English", time: new Date().toLocaleString(), id: Date.now() }; const nh = [entry, ...history].slice(0, 100); setHistory(nh); try { localStorage.setItem("nb_history", JSON.stringify(nh)); } catch {} }
+          try { localStorage.setItem("nb_total", String(nt)); } catch {}
+        }
+        setLoading(false);
+      }).catch(() => { setResponse("Something went wrong."); setLoading(false); });
+    }, 300);
+  };
+
   const generate = async () => {
     if (!review.trim() || stars === 0) return;
     if (!canGen) { setShowPricing(true); return; }
@@ -248,17 +269,18 @@ export default function Dashboard() {
 
             <div style={{ marginBottom: 14 }}>
               <textarea value={review} onChange={e => setReview(e.target.value)} placeholder="Paste a customer review here..." rows={4} style={{ width: "100%", padding: "16px 18px", borderRadius: 12, border: "1px solid var(--border)", background: "var(--card)", fontSize: 16, color: "var(--text)", fontFamily: "'DM Sans', sans-serif", outline: "none", boxSizing: "border-box", lineHeight: 1.6, resize: "vertical", transition: "border-color 0.15s" }} onFocus={e => e.target.style.borderColor = "var(--terra)"} onBlur={e => e.target.style.borderColor = "var(--border)"} />
-              {/* Quick-start samples when textarea is empty */}
+              {/* Quick-start samples when textarea is empty — one click to see it work */}
               {!review && !response && (
-                <div style={{ marginTop: 8, marginBottom: 2 }}>
-                  <div style={{ fontSize: 11, color: "var(--light)", marginBottom: 6 }}>No review handy? Try a sample:</div>
+                <div style={{ marginTop: 10, padding: "14px 16px", background: "var(--card)", borderRadius: 10, border: "1px solid var(--border)" }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)", marginBottom: 3 }}>No review handy?</div>
+                  <div style={{ fontSize: 12, color: "var(--dim)", marginBottom: 10 }}>Click a sample below and watch NoteBack write a reply instantly:</div>
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
                     {[
-                      { label: "Bad review", stars: 1, text: "Waited over an hour for our food. When it finally came, my steak was cold and the waiter didn't seem to care. Very disappointing.", biz: "Restaurant" },
-                      { label: "Great review", stars: 5, text: "Mike and his team were incredible! Fixed our AC on the hottest day of the year. Showed up on time, explained everything, and the price was fair. Highly recommend!", biz: "HVAC" },
-                      { label: "Mixed review", stars: 3, text: "The cleaning was okay but they missed the baseboards and behind the toilet. Friendly staff though and they were on time.", biz: "Cleaning Service" },
+                      { label: "Try a bad review", stars: 1, text: "Waited over an hour for our food. When it finally came, my steak was cold and the waiter didn't seem to care. Very disappointing.", biz: "Restaurant" },
+                      { label: "Try a great review", stars: 5, text: "Mike and his team were incredible! Fixed our AC on the hottest day of the year. Showed up on time, explained everything, and the price was fair. Highly recommend!", biz: "HVAC" },
+                      { label: "Try a mixed review", stars: 3, text: "The cleaning was okay but they missed the baseboards and behind the toilet. Friendly staff though and they were on time.", biz: "Cleaning Service" },
                     ].map(ex => (
-                      <button key={ex.label} onClick={() => { setReview(ex.text); setStars(ex.stars); setBizType(ex.biz); }} style={{ padding: "6px 12px", borderRadius: 7, border: "1px solid var(--border)", background: "var(--inputBg)", fontSize: 12, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "all 0.1s" }}>{ex.label} ({ex.stars} star)</button>
+                      <button key={ex.label} onClick={() => tryExample(ex)} style={{ padding: "8px 14px", borderRadius: 8, border: "1px solid var(--border)", background: "var(--inputBg)", fontSize: 13, fontWeight: 500, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "all 0.12s" }}>{ex.label}</button>
                     ))}
                   </div>
                 </div>
@@ -325,15 +347,14 @@ export default function Dashboard() {
               </div>
             )}
 
-            <button onClick={generate} disabled={!review.trim() || stars === 0 || loading} style={{ width: "100%", padding: "16px", borderRadius: 12, background: (!review.trim() || stars === 0) ? "var(--border)" : loading ? "var(--dim)" : "var(--terra)", border: "none", fontSize: 16, fontWeight: 700, cursor: (!review.trim() || stars === 0 || loading) ? "default" : "pointer", color: (!review.trim() || stars === 0) ? "var(--light)" : "#fff", fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s", marginBottom: 6 }}>
-              {loading ? "Writing your reply..." : !canGen ? "Upgrade to Pro for unlimited replies" : "Write My Reply"}
-            </button>
-            {!isPro && !response && (
-              <div style={{ textAlign: "center", marginTop: 6, marginBottom: 10 }}>
-                <span style={{ fontSize: 11, color: "var(--light)" }}>Most owners save 4+ hours/week on review management</span>
+            {!isPro && !response && review && stars > 0 && (
+              <div style={{ textAlign: "center", marginBottom: 6 }}>
+                <span style={{ fontSize: 11, color: "var(--dim)" }}>Most owners save 4+ hours/week on review replies</span>
               </div>
             )}
-            {(isPro || response) && <div style={{ marginBottom: 10 }} />}
+            <button onClick={generate} disabled={!review.trim() || stars === 0 || loading} style={{ width: "100%", padding: "16px", borderRadius: 12, background: (!review.trim() || stars === 0) ? "var(--border)" : loading ? "var(--dim)" : "var(--terra)", border: "none", fontSize: 16, fontWeight: 700, cursor: (!review.trim() || stars === 0 || loading) ? "default" : "pointer", color: (!review.trim() || stars === 0) ? "var(--light)" : "#fff", fontFamily: "'DM Sans', sans-serif", transition: "all 0.2s", marginBottom: 10 }}>
+              {loading ? "Writing your reply..." : !canGen ? "Upgrade to Pro for unlimited replies" : "Get My Reply"}
+            </button>
 
             {/* Response — value first, upsell after */}
             {response && (

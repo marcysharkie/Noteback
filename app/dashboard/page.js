@@ -247,7 +247,22 @@ export default function Dashboard() {
             )}
 
             <div style={{ marginBottom: 14 }}>
-              <textarea value={review} onChange={e => setReview(e.target.value)} placeholder="Paste the customer review here..." rows={4} style={{ width: "100%", padding: "16px 18px", borderRadius: 12, border: "1px solid var(--border)", background: "var(--card)", fontSize: 16, color: "var(--text)", fontFamily: "'DM Sans', sans-serif", outline: "none", boxSizing: "border-box", lineHeight: 1.6, resize: "vertical", transition: "border-color 0.15s" }} onFocus={e => e.target.style.borderColor = "var(--terra)"} onBlur={e => e.target.style.borderColor = "var(--border)"} />
+              <textarea value={review} onChange={e => setReview(e.target.value)} placeholder="Paste a customer review here..." rows={4} style={{ width: "100%", padding: "16px 18px", borderRadius: 12, border: "1px solid var(--border)", background: "var(--card)", fontSize: 16, color: "var(--text)", fontFamily: "'DM Sans', sans-serif", outline: "none", boxSizing: "border-box", lineHeight: 1.6, resize: "vertical", transition: "border-color 0.15s" }} onFocus={e => e.target.style.borderColor = "var(--terra)"} onBlur={e => e.target.style.borderColor = "var(--border)"} />
+              {/* Quick-start samples when textarea is empty */}
+              {!review && !response && (
+                <div style={{ marginTop: 8, marginBottom: 2 }}>
+                  <div style={{ fontSize: 11, color: "var(--light)", marginBottom: 6 }}>No review handy? Try a sample:</div>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                    {[
+                      { label: "Bad review", stars: 1, text: "Waited over an hour for our food. When it finally came, my steak was cold and the waiter didn't seem to care. Very disappointing.", biz: "Restaurant" },
+                      { label: "Great review", stars: 5, text: "Mike and his team were incredible! Fixed our AC on the hottest day of the year. Showed up on time, explained everything, and the price was fair. Highly recommend!", biz: "HVAC" },
+                      { label: "Mixed review", stars: 3, text: "The cleaning was okay but they missed the baseboards and behind the toilet. Friendly staff though and they were on time.", biz: "Cleaning Service" },
+                    ].map(ex => (
+                      <button key={ex.label} onClick={() => { setReview(ex.text); setStars(ex.stars); setBizType(ex.biz); }} style={{ padding: "6px 12px", borderRadius: 7, border: "1px solid var(--border)", background: "var(--inputBg)", fontSize: 12, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", transition: "all 0.1s" }}>{ex.label} ({ex.stars} star)</button>
+                    ))}
+                  </div>
+                </div>
+              )}
               {!showContext ? (
                 <button onClick={() => setShowContext(true)} style={{ marginTop: 6, background: "none", border: "none", fontSize: 12, color: "var(--dim)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif", padding: 0 }}>+ Add context <span style={{ color: "var(--light)" }}>— background info only you know</span></button>
               ) : (
